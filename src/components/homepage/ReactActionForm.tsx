@@ -11,8 +11,9 @@ import {
   TextField,
 } from '@mui/material';
 import { purple } from '@mui/material/colors';
-import React, { useActionState, useOptimistic } from 'react';
+import React, { useOptimistic } from 'react';
 import { z, ZodError } from 'zod';
+import { useFormState, useFormStatus } from 'react-dom';
 
 import { useClientContext } from '@/hooks/useClientContext';
 import { useSharedUtilContext } from '@/hooks/useSharedUtilContext';
@@ -55,12 +56,12 @@ const ReactActionForm: React.FC = () => {
 
   const { fetchCount, updateClientCtx } = useClientContext<FetchApiContext>();
   const [formErrors, setFormErrors] = React.useState<Record<string, string>>(
-    {}
+    {},
   );
 
   const resolveZodError = (error: ZodError): Record<string, string> => {
     const errors: Record<string, string> = {};
-    error.errors.forEach((err) => {
+    error.errors.forEach((err: { path: string | any[]; message: string }) => {
       if (err.path && err.path.length > 0) {
         const field = err.path[0];
         errors[field as string] = err.message;
@@ -71,7 +72,7 @@ const ReactActionForm: React.FC = () => {
 
   const submitFormFn = async (
     previousState: FormValues | undefined,
-    formData: FormData
+    formData: FormData,
   ) => {
     const formFieldValues = Object.fromEntries(formData) as FormValues;
 
@@ -117,13 +118,10 @@ const ReactActionForm: React.FC = () => {
     return formFieldValues;
   };
 
-  const [actionState, submitAction, isSubmitting] = useActionState(
-    submitFormFn,
-    {
-      name: 'John Doe',
-      email: 'john@react19.org',
-    }
-  );
+  const [actionState, submitAction, isSubmitting] = useFormState(submitFormFn, {
+    name: 'John Doe',
+    email: 'john@react19.org',
+  });
 
   return (
     <StyledForm action={submitAction}>
