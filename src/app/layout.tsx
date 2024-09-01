@@ -1,8 +1,9 @@
 import { Container } from '@mui/material';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import * as React from 'react';
 
+import AuthProvider from '@/components/shared/AuthProvider';
 import { SITE_CONFIG } from '@/constants';
 import { GLOBAL_STYLES } from '@/styles';
 
@@ -54,7 +55,9 @@ export default function RootLayout({
     <html lang='en'>
       <GlobalStyles styles={GLOBAL_STYLES} />
       <body>
-        <Container sx={{ pl: 0, pr: 0 }}>{children}</Container>
+        <AuthProvider>
+          <Container sx={{ pl: 0, pr: 0 }}>{children}</Container>
+        </AuthProvider>
       </body>
     </html>
   );

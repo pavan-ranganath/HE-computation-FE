@@ -1,12 +1,13 @@
 export const SITE_CONFIG = {
-  title: 'ReactJs 19.x + NextJs 16.x + MUI 6.x + TypeScript Starter',
+  title: 'Advanced Two Factor Authentication',
   description:
-    'The scaffold for ReactJs 19.x with NextJs 15.x (App Router), React Hook Form, Material UI(MUI 6.x),Typescript and ESLint, and TypeScript with Absolute Import, Seo, Link component, pre-configured with Husky',
-  /** Without additional '/' on the end, e.g. https://hihb.com */
-  url: 'https://hihb.com',
+    'This Advanced Two Factor Authentication employs cryptographic techniques like homomorphic encryption to ensure the security of sensitive data. The process is designed to safeguard against unauthorized access, providing a robust solution for identity verification that meets high standards of security and compliance.',
+  url: 'http://egstech.org',
 };
 
 export const HIDE_DEBUG_ARY = [
   // 'getApiResponse',
   'getMongoDbApiData',
 ];
+
+export const AUTH_TABLE = process.env.AUTH_TABLE_NAME ?? 'Users';

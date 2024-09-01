@@ -5,8 +5,6 @@ import WarningIcon from '@mui/icons-material/Warning';
 import { Box, Button } from '@mui/material';
 import * as React from 'react';
 
-import { consoleLog } from '@/utils/shared/console-log';
-
 export default function Error({
   error,
   reset,
@@ -15,7 +13,7 @@ export default function Error({
   reset: () => void;
 }) {
   React.useEffect(() => {
-    consoleLog('error.tsx', error);
+    console.log('error.tsx', error);
   }, [error]);
 
   return (
