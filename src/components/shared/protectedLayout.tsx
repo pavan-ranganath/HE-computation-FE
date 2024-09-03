@@ -68,9 +68,9 @@ export const ProtectedLayout = ({
       <>
         <Backdrop
           open={true}
-          sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
         >
-          <CircularProgress color='inherit' />
+          <CircularProgress color="inherit" />
         </Backdrop>
       </>
     );

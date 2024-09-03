@@ -12,7 +12,7 @@ import { ProtectedLayout } from '@/components/shared/protectedLayout';
 export default function Home({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <ClientSideWrapper defaultContextValue=''>
+      <ClientSideWrapper defaultContextValue="">
         <AuthProvider>
           <ProtectedLayout>{children}</ProtectedLayout>
         </AuthProvider>

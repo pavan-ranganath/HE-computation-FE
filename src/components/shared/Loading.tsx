@@ -24,9 +24,9 @@ const LoadingSpinner = ({ message }: { message: string }) => {
   return (
     <Backdrop open style={backdropStyle}>
       <div style={fullscreenLoader}>
-        <CircularProgress color='primary' />
+        <CircularProgress color="primary" />
         {message && (
-          <Typography color='white' variant='h6'>
+          <Typography color="white" variant="h6">
             {message}
           </Typography>
         )}

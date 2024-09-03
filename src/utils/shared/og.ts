@@ -34,8 +34,7 @@ export function openGraph({
 export function uint8ArrayToBase64(uint8Array: Uint8Array): string {
   // Convert each byte to a string character and join them
   const binaryString = Array.from(uint8Array, (byte: number) =>
-    String.fromCharCode(byte),
-  ).join('');
+    String.fromCharCode(byte)).join('');
   return btoa(binaryString);
 }
 
@@ -56,7 +55,7 @@ export function hexStringToUint8Array(hexString: string): Uint8Array {
   hexString = hexString.replace(/[^0-9a-z]+/gi, '');
   const match = hexString.match(/[0-9a-f]{1,2}/gi);
   if (hexString.match(/^[0-9a-f]+$/i) && match && match.length) {
-    return Uint8Array.from(match.map((byte) => Number.parseInt(byte, 16)));
+    return Uint8Array.from(match.map(byte => Number.parseInt(byte, 16)));
   }
   throw new Error('Bad input to decodeHex');
 }
@@ -64,7 +63,7 @@ export function hexStringToUint8Array(hexString: string): Uint8Array {
 // Convert Uint8Array to hex string
 export function uint8ArrayToHexString(uint8Array: Uint8Array): string {
   return Array.from(new Uint8Array(uint8Array))
-    .map((b) => b.toString(16).padStart(2, '0'))
+    .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
@@ -100,7 +99,7 @@ export async function createEncryptionKey(keyMaterial: BufferSource) {
   return encryptionKey;
 }
 
-export const ED25519_DID_PREFIX = new Uint8Array([0xed, 0x01]);
+export const ED25519_DID_PREFIX = new Uint8Array([0xED, 0x01]);
 /**
  * Encrypt data with AES-GCM
  *

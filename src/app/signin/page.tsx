@@ -139,9 +139,9 @@ export default function SignInComponent() {
         {/* Display a backdrop with a loading spinner */}
         <Backdrop
           open={true}
-          sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
         >
-          <CircularProgress color='inherit' />
+          <CircularProgress color="inherit" />
         </Backdrop>
       </>
     );
@@ -162,26 +162,26 @@ export default function SignInComponent() {
           }}
         /> */}
         {/* <AppLogoSVG theme="light" /> */}
-        <Typography variant='h5' component='h2'>
+        <Typography variant="h5" component="h2">
           {SITE_CONFIG.title}
         </Typography>
       </Box>
 
       {/* Display the sign-in form */}
       <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-        <Typography component='h1' variant='h5' sx={{ marginBottom: 0 }}>
+        <Typography component="h1" variant="h5" sx={{ marginBottom: 0 }}>
           Sign In
         </Typography>
       </Box>
-      <form autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
+      <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         {/* Email input field */}
         <TextField
-          label='Email'
-          type='email'
-          autoComplete='webauthn'
+          label="Email"
+          type="email"
+          autoComplete="webauthn"
           {...register('email')} // Register the "email" field with react-hook-form.
-          variant='outlined'
-          color='primary'
+          variant="outlined"
+          color="primary"
           sx={{ mb: 3 }}
           fullWidth
           error={!!(touchedFields.email && errors.email)} // Check if the "email" field has an error.
@@ -189,14 +189,15 @@ export default function SignInComponent() {
         />
 
         {/* Submit button */}
-        <Button variant='contained' color='primary' type='submit'>
+        <Button variant="contained" color="primary" type="submit">
           Sign In
         </Button>
       </form>
       {/* Link to register */}
       <small>
-        Do not have an account?{' '}
-        <Link style={{ textDecoration: 'underline' }} href='/register'>
+        Do not have an account?
+        {' '}
+        <Link style={{ textDecoration: 'underline' }} href="/register">
           Register Here
         </Link>
       </small>

@@ -18,7 +18,7 @@ const ServerDateTime = ({
   date?: string;
 }) => {
   return (
-    <Box component='span' className='date-time' style={{ color }}>
+    <Box component="span" className="date-time" style={{ color }}>
       {dayjs(date).tz(cityTimezone).format(timeFormat)}
     </Box>
   );

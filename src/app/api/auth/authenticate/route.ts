@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
   }
   // Update the authentication options with the allowed credentials
   // Authenticators previously registered by the user
-  options.allowCredentials = credentials?.passkeyInfo.map((c) => ({
+  options.allowCredentials = credentials?.passkeyInfo.map(c => ({
     id: c.credentialId,
     type: 'public-key',
     transports: c.credential.response.transports,

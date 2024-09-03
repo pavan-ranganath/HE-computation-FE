@@ -1,6 +1,6 @@
 import { openGraph } from '@/utils/shared/og';
 
-describe('Open Graph function should work correctly', () => {
+describe('open Graph function should work correctly', () => {
   it('should not return templateTitle when not specified', () => {
     const result = openGraph({
       description: 'Test description',

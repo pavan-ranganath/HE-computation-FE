@@ -6,8 +6,8 @@ import { signOut } from 'next-auth/react';
 const LogoutButton = () => {
   return (
     <Button
-      variant='contained'
-      color='success'
+      variant="contained"
+      color="success"
       onClick={() => signOut({ callbackUrl: '/signin' })}
     >
       Logout

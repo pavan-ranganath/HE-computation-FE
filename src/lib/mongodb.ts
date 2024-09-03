@@ -36,5 +36,5 @@ export async function dbConnect() {
   connection.on('connected', () => console.log('Mongodb connected to db'));
 
   // Event listener for database connection errors
-  connection.on('error', (err) => console.error('Mongodb Error:', err.message));
+  connection.on('error', err => console.error('Mongodb Error:', err.message));
 }

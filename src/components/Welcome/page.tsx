@@ -67,7 +67,7 @@ const mermaidChart = `
 export default function Home() {
   return (
     <Box>
-      <Container maxWidth='lg'>
+      <Container maxWidth="lg">
         <Paper
           elevation={6}
           sx={{
@@ -78,16 +78,16 @@ export default function Home() {
         >
           {/* Sign In and Register Buttons */}
           <Typography
-            variant='h4'
-            component='h1'
+            variant="h4"
+            component="h1"
             gutterBottom
             sx={{ textAlign: 'center', mb: 4 }}
           >
             {SITE_CONFIG.title}
           </Typography>
           <Stack
-            direction='row'
-            justifyContent='center'
+            direction="row"
+            justifyContent="center"
             spacing={2}
             sx={{ mb: 4 }}
           >
@@ -96,8 +96,8 @@ export default function Home() {
 
           <Box sx={{ mt: 3 }}>
             <Typography
-              variant='h5'
-              component='h2'
+              variant="h5"
+              component="h2"
               gutterBottom
               sx={{ fontWeight: 'bold', mb: 2 }}
             >
@@ -108,72 +108,98 @@ export default function Home() {
 
             <Box sx={{ mb: 4 }}>
               <Typography
-                variant='h5'
-                component='h2'
+                variant="h5"
+                component="h2"
                 gutterBottom
                 sx={{ fontWeight: 'bold', mb: 2 }}
               >
                 Registration
               </Typography>
               <Typography paragraph sx={{ fontSize: '1.1rem' }}>
-                The Registration Process involves the <strong>Client</strong>{' '}
-                securely registering their identity with the{' '}
-                <strong>Service Provider</strong>. This process includes
+                The Registration Process involves the
+                {' '}
+                <strong>Client</strong>
+                {' '}
+                securely registering their identity with the
+                {' '}
+                <strong>Service Provider</strong>
+                . This process includes
                 generating cryptographic keys, encrypting sensitive data, and
                 storing necessary information for future verifications.
               </Typography>
 
-              <Typography variant='h6' component='h3' gutterBottom>
+              <Typography variant="h6" component="h3" gutterBottom>
                 1.1 Overview
               </Typography>
               <Typography paragraph sx={{ fontSize: '1rem' }}>
-                The <strong>Client</strong> generates a pair of homomorphic
+                The
+                {' '}
+                <strong>Client</strong>
+                {' '}
+                generates a pair of homomorphic
                 encryption keys on their device. These keys will be used to
-                encrypt sensitive data (e.g., SSN) before transmitting it to the{' '}
-                <strong>Service Provider</strong>.
+                encrypt sensitive data (e.g., SSN) before transmitting it to the
+                {' '}
+                <strong>Service Provider</strong>
+                .
               </Typography>
-              <Typography variant='h6' component='h3' gutterBottom>
+              <Typography variant="h6" component="h3" gutterBottom>
                 1.2 Steps
               </Typography>
               <Typography
-                component='ol'
+                component="ol"
                 paragraph
                 sx={{ fontSize: '1rem', pl: 2 }}
               >
                 <li>
                   Homomorphic Key Generation: The
-                  <strong>Client</strong> generates a pair of homomorphic
+                  <strong>Client</strong>
+                  {' '}
+                  generates a pair of homomorphic
                   encryption keys on their device. These keys will be used to
                   encrypt sensitive data (e.g., SSN) before transmitting it to
                   the
-                  <strong>Service Provider</strong>.
+                  <strong>Service Provider</strong>
+                  .
                 </li>
                 <li>
                   SSN Encryption: The
-                  <strong>Client</strong> uses the homomorphic keys to encrypt
+                  <strong>Client</strong>
+                  {' '}
+                  uses the homomorphic keys to encrypt
                   their Social Security Number (SSN).
                 </li>
                 <li>
                   Profile Information Input: The
-                  <strong>Client</strong> inputs their profile information,
+                  <strong>Client</strong>
+                  {' '}
+                  inputs their profile information,
                   including Username, Name, Email, Phone Number.
                 </li>
                 <li>
                   Final Data Preparation: The
-                  <strong>Client</strong> generates the final encrypted SSN and
+                  <strong>Client</strong>
+                  {' '}
+                  generates the final encrypted SSN and
                   gathers all necessary registration information, including a
                   security question and its hashed answer.
                 </li>
                 <li>
                   Registration Submission: The
-                  <strong>Client</strong> registers with the
-                  <strong>Service Provider</strong> by submitting the Encrypted
+                  <strong>Client</strong>
+                  {' '}
+                  registers with the
+                  <strong>Service Provider</strong>
+                  {' '}
+                  by submitting the Encrypted
                   SSN, Profile Information, Security Question & Hashed Answer,
                   and Passkey for secure submission.
                 </li>
                 <li>
                   Storage: The
-                  <strong>Client</strong> securely stores the homomorphic keys
+                  <strong>Client</strong>
+                  {' '}
+                  securely stores the homomorphic keys
                   and encrypted SSN on their device for future use.
                 </li>
               </Typography>
@@ -183,87 +209,134 @@ export default function Home() {
 
             <Box sx={{ mb: 4 }}>
               <Typography
-                variant='h5'
-                component='h2'
+                variant="h5"
+                component="h2"
                 gutterBottom
                 sx={{ fontWeight: 'bold', mb: 2 }}
               >
                 Advanced 2-Step Verification Process
               </Typography>
               <Typography paragraph sx={{ fontSize: '1.1rem' }}>
-                The Advanced 2-Step Verification Process ensures the{' '}
-                <strong>Client's</strong> identity is verified securely using
+                The Advanced 2-Step Verification Process ensures the
+                {' '}
+                <strong>Client's</strong>
+                {' '}
+                identity is verified securely using
                 their previously registered information. This process involves
                 the
-                <strong>Service Provider</strong> and{' '}
-                <strong>Computational Domain</strong> working together to
+                <strong>Service Provider</strong>
+                {' '}
+                and
+                {' '}
+                <strong>Computational Domain</strong>
+                {' '}
+                working together to
                 validate the
-                <strong>Client’s</strong> identity through encrypted SSN
+                <strong>Client’s</strong>
+                {' '}
+                identity through encrypted SSN
                 comparison and a security question challenge.
               </Typography>
 
-              <Typography variant='h6' component='h3' gutterBottom>
+              <Typography variant="h6" component="h3" gutterBottom>
                 2.1 Overview
               </Typography>
               <Typography paragraph sx={{ fontSize: '1rem' }}>
-                The <strong>Client</strong> initiates the login process using
-                their passkey. The <strong>Service Provider</strong> retrieves
-                the <strong>Client’s</strong> encrypted SSN from its database.
+                The
+                {' '}
+                <strong>Client</strong>
+                {' '}
+                initiates the login process using
+                their passkey. The
+                {' '}
+                <strong>Service Provider</strong>
+                {' '}
+                retrieves
+                the
+                {' '}
+                <strong>Client’s</strong>
+                {' '}
+                encrypted SSN from its database.
               </Typography>
-              <Typography variant='h6' component='h3' gutterBottom>
+              <Typography variant="h6" component="h3" gutterBottom>
                 2.2 Steps
               </Typography>
               <Typography
-                component='ol'
+                component="ol"
                 paragraph
                 sx={{ fontSize: '1rem', pl: 2 }}
               >
                 <li>
                   Initial Login: The
-                  <strong>Client</strong> initiates the login process using
+                  <strong>Client</strong>
+                  {' '}
+                  initiates the login process using
                   their passkey.
                 </li>
                 <li>
                   Random Code and Question Generation: The
-                  <strong>Service Provider</strong> generates a random 10-digit
+                  <strong>Service Provider</strong>
+                  {' '}
+                  generates a random 10-digit
                   code and selects a security question.
                 </li>
                 <li>
                   SSN Verification Request: The
-                  <strong>Service Provider</strong> sends a request to the
-                  <strong>Computational Domain</strong> for SSN verification.
+                  <strong>Service Provider</strong>
+                  {' '}
+                  sends a request to the
+                  <strong>Computational Domain</strong>
+                  {' '}
+                  for SSN verification.
                 </li>
                 <li>
                   Temporary Storage and Verification Link: The
-                  <strong>Computational Domain</strong> temporarily stores the
+                  <strong>Computational Domain</strong>
+                  {' '}
+                  temporarily stores the
                   received SSN, question, and 10-digit code.
                 </li>
                 <li>
                   Client Verification: The
-                  <strong>Client</strong> accesses the link, provides their
+                  <strong>Client</strong>
+                  {' '}
+                  accesses the link, provides their
                   homomorphic keys, and requests the
-                  <strong>Computational Domain’s</strong> public key.
+                  <strong>Computational Domain’s</strong>
+                  {' '}
+                  public key.
                 </li>
                 <li>
                   SSN Comparison: The
-                  <strong>Computational Domain</strong> retrieves the SSN
+                  <strong>Computational Domain</strong>
+                  {' '}
+                  retrieves the SSN
                   received from the
-                  <strong>Service Provider</strong> and compares it
+                  <strong>Service Provider</strong>
+                  {' '}
+                  and compares it
                   homomorphically with the
-                  <strong>Client’s</strong> encrypted SSN.
+                  <strong>Client’s</strong>
+                  {' '}
+                  encrypted SSN.
                 </li>
                 <li>
                   Final Verification: The
-                  <strong>Client</strong> answers the question, hashes the
+                  <strong>Client</strong>
+                  {' '}
+                  answers the question, hashes the
                   answer, concatenates it with the 10-digit code, and hashes the
                   result.
                 </li>
                 <li>
                   Hash Comparison and Final Outcome: The
-                  <strong>Service Provider</strong> retrieves the hashed answer
+                  <strong>Service Provider</strong>
+                  {' '}
+                  retrieves the hashed answer
                   and the 10-digit code, hashes them, and compares the result
                   with the hash provided by the
-                  <strong>Client</strong>.
+                  <strong>Client</strong>
+                  .
                 </li>
               </Typography>
             </Box>
@@ -272,8 +345,8 @@ export default function Home() {
 
             <Box sx={{ mb: 4 }}>
               <Typography
-                variant='h5'
-                component='h2'
+                variant="h5"
+                component="h2"
                 gutterBottom
                 sx={{ fontWeight: 'bold', mb: 2 }}
               >

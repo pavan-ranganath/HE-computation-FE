@@ -7,9 +7,9 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
 
-  webpack(config) {
+  webpack(config, { isServer }) {
     // Grab the existing rule that handles SVG imports
-    const fileLoaderRule = config.module.rules.find((rule) =>
+    const fileLoaderRule = config.module.rules.find(rule =>
       rule.test?.test?.('.svg'),
     );
 
@@ -35,6 +35,12 @@ const nextConfig = {
     // Modify the file loader rule to ignore *.svg, since we have it handled now.
     fileLoaderRule.exclude = /\.svg$/i;
 
+    if (!isServer) {
+      Object.assign(config.resolve.alias, {
+        fs: false,
+        readline: false,
+      });
+    }
     return config;
   },
 };

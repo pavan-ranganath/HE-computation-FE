@@ -18,7 +18,7 @@ export default function ProfileInfo() {
         </p>
         <LogoutButton />
         {pathname !== '/home' && (
-          <Button variant='contained' color='primary' href='/home'>
+          <Button variant="contained" color="primary" href="/home">
             Home
           </Button>
         )}
@@ -28,10 +28,10 @@ export default function ProfileInfo() {
 
   return (
     <>
-      <Button variant='contained' color='primary' href='/signin'>
+      <Button variant="contained" color="primary" href="/signin">
         Sign In
       </Button>
-      <Button variant='outlined' color='primary' href='/register'>
+      <Button variant="outlined" color="primary" href="/register">
         Register
       </Button>
     </>

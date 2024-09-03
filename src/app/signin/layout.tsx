@@ -17,15 +17,15 @@ export default function SignInLayout({
   return (
     <>
       {/* Wrapping the content with Providers component */}
-      <ClientSideWrapper defaultContextValue=''>
+      <ClientSideWrapper defaultContextValue="">
         <SessionProvider>
           {/* Creating a Grid container */}
           <Grid2
             container
             spacing={0}
-            direction='column'
-            alignItems='center'
-            justifyContent='center'
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
             sx={{ minHeight: '100vh' }}
           >
             {/* Adding a Grid item */}

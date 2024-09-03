@@ -15,7 +15,7 @@ export default function MermaidChart({ chart }: { chart: any }) {
   return (
     <div
       ref={chartRef}
-      className='mermaid'
+      className="mermaid"
       dangerouslySetInnerHTML={{ __html: chart }}
       style={{ overflowX: 'auto' }} // Ensure the diagram is scrollable if it's wide
     />

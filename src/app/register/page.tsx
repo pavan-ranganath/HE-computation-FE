@@ -131,9 +131,9 @@ export default function Register(): JSX.Element {
         {/* Display a loading backdrop */}
         <Backdrop
           open={true}
-          sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
         >
-          <CircularProgress color='inherit' />
+          <CircularProgress color="inherit" />
         </Backdrop>
       </>
     );
@@ -154,25 +154,25 @@ export default function Register(): JSX.Element {
           }}
         /> */}
         {/* <AppLogoSVG theme="light" /> */}
-        <Typography variant='h5' component='h2'>
+        <Typography variant="h5" component="h2">
           {SITE_CONFIG.title}
         </Typography>
       </Box>
 
       {/* Registration form */}
       <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-        <Typography component='h1' variant='h5' sx={{ marginBottom: 0 }}>
+        <Typography component="h1" variant="h5" sx={{ marginBottom: 0 }}>
           Registration
         </Typography>
       </Box>
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Full Name field */}
         <TextField
-          id='fullName'
-          type='text'
-          variant='outlined'
-          color='primary'
-          label='Full Name (Firstname and Lastname)'
+          id="fullName"
+          type="text"
+          variant="outlined"
+          color="primary"
+          label="Full Name (Firstname and Lastname)"
           fullWidth
           {...register('fullName')}
           error={touchedFields.fullName && Boolean(errors.fullName)}
@@ -181,10 +181,10 @@ export default function Register(): JSX.Element {
         />
         {/* Date of Birth field */}
         <TextField
-          type='date'
-          variant='outlined'
-          color='primary'
-          label='Date of Birth (DD/MM/YYYY)'
+          type="date"
+          variant="outlined"
+          color="primary"
+          label="Date of Birth (DD/MM/YYYY)"
           InputLabelProps={{ shrink: true }}
           {...register('dob')}
           error={touchedFields.dob && Boolean(errors.dob)}
@@ -194,10 +194,10 @@ export default function Register(): JSX.Element {
         />
         {/* Email field */}
         <TextField
-          type='email'
-          variant='outlined'
-          color='primary'
-          label='Email'
+          type="email"
+          variant="outlined"
+          color="primary"
+          label="Email"
           {...register('email')}
           error={touchedFields.email && Boolean(errors.email)}
           helperText={touchedFields.email ? errors.email?.message : ''}
@@ -206,7 +206,7 @@ export default function Register(): JSX.Element {
         />
         {/* Phone field */}
         <Controller
-          name='mobile'
+          name="mobile"
           control={control}
           rules={{
             validate: (value) => {
@@ -220,12 +220,12 @@ export default function Register(): JSX.Element {
               inputRef={ref}
               inputProps={{ readOnly: false }}
               {...field}
-              color='primary'
-              defaultCountry='US'
-              variant='outlined'
+              color="primary"
+              defaultCountry="US"
+              variant="outlined"
               // onlyCountries={["US", "IN"]}
               // onlyCountries={["IN"]}
-              label='Mobile Number'
+              label="Mobile Number"
               error={!!errors.mobile}
               helperText={errors.mobile?.message}
               fullWidth
@@ -234,15 +234,16 @@ export default function Register(): JSX.Element {
           )}
         />
         {/* Submit button */}
-        <Button variant='contained' color='primary' type='submit'>
+        <Button variant="contained" color="primary" type="submit">
           Register
         </Button>
       </form>
 
       {/* Sign-in link */}
       <small>
-        Already have an account?{' '}
-        <Link style={{ textDecoration: 'underline' }} href='/signin'>
+        Already have an account?
+        {' '}
+        <Link style={{ textDecoration: 'underline' }} href="/signin">
           Sign in Here
         </Link>
       </small>

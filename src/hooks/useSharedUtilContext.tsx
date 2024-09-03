@@ -1,19 +1,18 @@
 'use client';
 
-import React, { createContext, ReactNode, useContext } from 'react';
+import type { ReactNode } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 
-import { AlertBarProps, useAlertBar } from '@/hooks/useAlertBar';
-import useConfirmationDialog, {
-  ConfirmationDialogProps,
-} from '@/hooks/useConfirmDialog';
+import { OUTSIDE_SHARED_UTIL_PROVIDER_ERROR } from '@/constants/errors';
+import type { AlertBarProps } from '@/hooks/useAlertBar';
+import { useAlertBar } from '@/hooks/useAlertBar';
+import type { ConfirmationDialogProps } from '@/hooks/useConfirmDialog';
+import useConfirmationDialog from '@/hooks/useConfirmDialog';
 
-export const OUTSIDE_SHARED_UTIL_PROVIDER_ERROR =
-  'Cannot be used outside SharedUtilProvider!';
-
-export interface SharedUtilContextType {
+export type SharedUtilContextType = {
   setAlertBarProps: (props: AlertBarProps) => void;
   openConfirmDialog: (props: ConfirmationDialogProps) => void;
-}
+};
 
 export const SharedUtilContext = createContext<
   SharedUtilContextType | undefined
@@ -36,17 +35,19 @@ export const useSharedUtilContext = (): SharedUtilContextType => {
  */
 export const SharedUtilProvider = ({ children }: { children: ReactNode }) => {
   const { renderAlertBar, setAlertBarProps } = useAlertBar();
+  const { renderConfirmationDialog, openConfirmDialog }
+    = useConfirmationDialog();
 
-  const { renderConfirmationDialog, openConfirmDialog } =
-    useConfirmationDialog();
+  const contextValue = useMemo(
+    () => ({
+      setAlertBarProps,
+      openConfirmDialog,
+    }),
+    [setAlertBarProps, openConfirmDialog],
+  );
 
   return (
-    <SharedUtilContext.Provider
-      value={{
-        setAlertBarProps,
-        openConfirmDialog,
-      }}
-    >
+    <SharedUtilContext.Provider value={contextValue}>
       {children}
       {renderAlertBar()}
       {renderConfirmationDialog()}

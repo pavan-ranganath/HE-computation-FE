@@ -1,17 +1,11 @@
 'use client';
 
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  Alert,
-  AlertColor,
-  IconButton,
-  Slide,
-  Snackbar,
-  SnackbarOrigin,
-} from '@mui/material';
+import type { AlertColor, SnackbarOrigin } from '@mui/material';
+import { Alert, IconButton, Slide, Snackbar } from '@mui/material';
 import React, { useState } from 'react';
 
-export interface AlertBarProps {
+export type AlertBarProps = {
   message: React.ReactNode;
   onClose?: () => void;
   severity?: AlertColor;
@@ -19,7 +13,7 @@ export interface AlertBarProps {
   horizontal?: SnackbarOrigin['horizontal'];
   autoHideSeconds?: number;
   transitionSeconds?: number;
-}
+};
 
 // my personal alert bar, feel free to use it, examples are in ReactHookForm.tsx
 export const useAlertBar = () => {
@@ -42,35 +36,37 @@ export const useAlertBar = () => {
       transitionSeconds = 0.5,
     } = alertBarProps;
 
-    return message ? (
-      <Snackbar
-        anchorOrigin={{ vertical, horizontal }}
-        open={!!message}
-        onClose={onAlertClose}
-        autoHideDuration={autoHideSeconds * 1000}
-        TransitionComponent={(props) => <Slide {...props} direction='up' />}
-        transitionDuration={transitionSeconds * 1000}
-        action={
-          <IconButton
-            size='small'
-            aria-label='close'
-            color='inherit'
-            onClick={onAlertClose}
+    return message
+      ? (
+          <Snackbar
+            anchorOrigin={{ vertical, horizontal }}
+            open={!!message}
+            onClose={onAlertClose}
+            autoHideDuration={autoHideSeconds * 1000}
+            TransitionComponent={props => <Slide {...props} direction="up" />}
+            transitionDuration={transitionSeconds * 1000}
+            action={(
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={onAlertClose}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            )}
           >
-            <CloseIcon fontSize='small' />
-          </IconButton>
-        }
-      >
-        <Alert
-          onClose={onAlertClose}
-          severity={severity}
-          variant='filled'
-          sx={{ width: '100%' }}
-        >
-          {message}
-        </Alert>
-      </Snackbar>
-    ) : null;
+            <Alert
+              onClose={onAlertClose}
+              severity={severity}
+              variant="filled"
+              sx={{ width: '100%' }}
+            >
+              {message}
+            </Alert>
+          </Snackbar>
+        )
+      : null;
   };
 
   return {

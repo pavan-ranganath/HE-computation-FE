@@ -37,7 +37,7 @@ describe('useClientContext', () => {
       () => useClientContext<typeof defaultCtxValue>(),
       {
         wrapper,
-      }
+      },
     );
 
     expect(result.current.topError).toBe(ctxValue.topError);
@@ -65,7 +65,7 @@ describe('useClientContext', () => {
       () => useClientContext<typeof defaultCtxValue>(),
       {
         wrapper,
-      }
+      },
     );
 
     const newCtxValue = {

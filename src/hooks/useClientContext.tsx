@@ -1,10 +1,11 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import React, {
   createContext,
-  ReactNode,
   useCallback,
   useContext,
+  useMemo,
   useState,
 } from 'react';
 
@@ -14,12 +15,12 @@ import React, {
  * Please change the per-defined type & default value in constants/context.ts
  */
 
-export const OUTSIDE_CLIENT_PROVIDER_ERROR =
-  'Cannot be used outside ClientProvider!';
+export const OUTSIDE_CLIENT_PROVIDER_ERROR
+  = 'Cannot be used outside ClientProvider!';
 
-export interface UpdateClientCtxType<T> {
+export type UpdateClientCtxType<T> = {
   updateClientCtx: (props: Partial<T>) => void;
-}
+};
 
 export const ClientContext = createContext<unknown | undefined>(undefined);
 
@@ -60,21 +61,23 @@ export const ClientProvider = <T,>({
 
   const updateContext = useCallback(
     (newCtxValue: Partial<T>) => {
-      setContextValue((prevContextValue) => ({
+      setContextValue(prevContextValue => ({
         ...prevContextValue,
         ...newCtxValue,
       }));
     },
-    [setContextValue]
+    [setContextValue],
+  );
+  const contextValueTemp = useMemo(
+    () => ({
+      ...contextValue,
+      updateClientCtx: updateContext,
+    }),
+    [contextValue, updateContext],
   );
 
   return (
-    <ClientContext.Provider
-      value={{
-        ...contextValue,
-        updateClientCtx: updateContext,
-      }}
-    >
+    <ClientContext.Provider value={contextValueTemp}>
       {children}
     </ClientContext.Provider>
   );

@@ -1,10 +1,10 @@
 import { blue, grey } from '@mui/material/colors';
 
 export const GLOBAL_STYLES = {
-  body: { margin: 4 },
+  'body': { margin: 4 },
   '.page-title': { color: 'darkblue' },
   '.page-subtitle': { color: grey[600] },
-  a: {
+  'a': {
     textDecoration: 'underline',
     textDecorationColor: blue[800],
     color: blue['700'],

@@ -38,8 +38,8 @@ export const dynamic = 'force-dynamic'; // to supress Error processing API reque
 
 // Retrieve environment variables
 const domain = process.env.APP_DOMAIN!;
-export const origin =
-  process.env.NODE_ENV === 'production'
+export const origin
+  = process.env.NODE_ENV === 'production'
     ? `https://${domain}`
     : `http://${domain}`;
 const expectedOrigin: string[] = process.env.NEXTAUTH_EXPECTED_ORIGIN
@@ -298,8 +298,8 @@ export async function POST(req: NextRequest) {
    * This function verifies the response data sent by the client during
    * WebAuthn registration and performs necessary checks for authenticity.
    */
-  const { verified, registrationInfo: info } =
-    await verifyWebAuthnRegistrationResponse(
+  const { verified, registrationInfo: info }
+    = await verifyWebAuthnRegistrationResponse(
       credential,
       domain,
       expectedOrigin,
@@ -376,8 +376,8 @@ export async function PUT(req: NextRequest) {
    * This function verifies the response data sent by the client during
    * WebAuthn registration and performs necessary checks for authenticity.
    */
-  const { verified, registrationInfo: info } =
-    await verifyWebAuthnRegistrationResponse(
+  const { verified, registrationInfo: info }
+    = await verifyWebAuthnRegistrationResponse(
       credential,
       domain,
       origin,

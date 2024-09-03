@@ -16,14 +16,14 @@ export default function RegisterLayout({
 }) {
   return (
     <>
-      <ClientSideWrapper defaultContextValue=''>
+      <ClientSideWrapper defaultContextValue="">
         <AuthProvider>
           <Grid2
             container
             spacing={0}
-            direction='column'
-            alignItems='center'
-            justifyContent='center'
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
             sx={{ minHeight: '100vh' }}
           >
             <Grid item xs={3} sx={{ margin: '10px' }}>

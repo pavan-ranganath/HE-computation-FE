@@ -27,11 +27,11 @@ export default function Error({
           <Box sx={{ m: 5 }}>
             <Button onClick={reset}>Try again</Button>
           </Box>
-          <a href='/?slug=homepage'>Back to home</a>
+          <a href="/?slug=homepage">Back to home</a>
           <div>
             <img
-              src='https://img.freepik.com/free-vector/500-internal-server-error-concept-illustration_114360-1905.jpg'
-              alt='500'
+              src="https://img.freepik.com/free-vector/500-internal-server-error-concept-illustration_114360-1905.jpg"
+              alt="500"
             />
           </div>
         </Box>

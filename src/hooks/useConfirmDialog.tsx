@@ -1,27 +1,30 @@
 import styled from '@emotion/styled';
 import { Close } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import Button, { ButtonProps } from '@mui/material/Button';
-import Dialog, { DialogProps } from '@mui/material/Dialog';
+import type { ButtonProps } from '@mui/material/Button';
+import Button from '@mui/material/Button';
+import type { DialogProps } from '@mui/material/Dialog';
+import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import React, { cloneElement, ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
+import React, { useState } from 'react';
 
-export interface ConfirmationDialogProps {
+export type ConfirmationDialogProps = {
   title: string;
   content: ReactNode;
   onConfirm?: () => void;
   onCancel?: () => void;
   cancelText?: ReactNode;
   confirmText?: ReactNode;
-  cancelButton?: React.ReactElement<ButtonProps>;
-  confirmButton?: React.ReactElement<ButtonProps>;
+  cancelButtonProps?: ButtonProps;
+  confirmButtonProps?: ButtonProps;
   dialogPaperProps?: DialogProps['PaperProps'];
   autoClose?: boolean; // auto close dialog after confirm
   hideCancelButton?: boolean;
   hideCloseButton?: boolean;
-}
+};
 
 const StyledContentDiv = styled.div`
   min-width: 19rem; // 19x16 = 304px
@@ -44,7 +47,6 @@ const StyledContentDiv = styled.div`
   }
 `;
 
-// my personal confirmation dialog, feel free to use it, examples are in ReactHookForm.tsx
 const useConfirmationDialog = () => {
   const defaultDialogProps: ConfirmationDialogProps = {
     title: '',
@@ -54,81 +56,75 @@ const useConfirmationDialog = () => {
     hideCloseButton: false,
   };
   const [open, setOpen] = useState(false);
-  const [dialogProps, setDialogProps] =
-    useState<ConfirmationDialogProps>(defaultDialogProps);
+  const [dialogProps, setDialogProps]
+    = useState<ConfirmationDialogProps>(defaultDialogProps);
 
   const handleOpen = (config: ConfirmationDialogProps) => {
     setDialogProps({
       ...defaultDialogProps,
       ...config,
-      confirmButton: config.confirmButton || (
-        <Button color='primary' variant='contained'>
-          {config.confirmText || 'OK'}
-        </Button>
-      ),
-      cancelButton: config.cancelButton || (
-        <Button color='primary'>{config.cancelText || 'Cancel'}</Button>
-      ),
     });
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
-    setDialogProps({
-      ...defaultDialogProps,
-      title: '',
-      content: '',
-    });
+    setDialogProps(defaultDialogProps);
   };
 
   const handleConfirm = () => {
     dialogProps.onConfirm?.();
-    dialogProps.autoClose && handleClose();
+    handleClose();
   };
 
   const handleCancel = () => {
     dialogProps.onCancel?.();
-    dialogProps.autoClose && handleClose();
+    handleClose();
   };
 
-  const renderConfirmationDialog = () => {
-    return (
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        PaperProps={dialogProps.dialogPaperProps}
-      >
-        {dialogProps.title && (
-          <StyledContentDiv>
-            <DialogTitle>{dialogProps.title}</DialogTitle>
-            {!dialogProps.hideCloseButton && (
-              <IconButton
-                className='close-button'
-                color='inherit'
+  const renderConfirmationDialog = () => (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      PaperProps={dialogProps.dialogPaperProps}
+    >
+      {dialogProps.title && (
+        <StyledContentDiv>
+          <DialogTitle>{dialogProps.title}</DialogTitle>
+          {!dialogProps.hideCloseButton && (
+            <IconButton
+              className="close-button"
+              color="inherit"
+              onClick={handleCancel}
+              aria-label="close"
+            >
+              <Close />
+            </IconButton>
+          )}
+          <DialogContent>{dialogProps.content}</DialogContent>
+          <DialogActions>
+            {!dialogProps.hideCancelButton && (
+              <Button
+                color="primary"
                 onClick={handleCancel}
-                aria-label='close'
+                {...dialogProps.cancelButtonProps}
               >
-                <Close />
-              </IconButton>
+                {dialogProps.cancelText || 'Cancel'}
+              </Button>
             )}
-            <DialogContent>{dialogProps.content}</DialogContent>
-            <DialogActions>
-              {dialogProps.cancelButton &&
-                !dialogProps.hideCancelButton &&
-                cloneElement(dialogProps.cancelButton, {
-                  onClick: handleCancel,
-                })}
-              {dialogProps.confirmButton &&
-                cloneElement(dialogProps.confirmButton, {
-                  onClick: handleConfirm,
-                })}
-            </DialogActions>
-          </StyledContentDiv>
-        )}
-      </Dialog>
-    );
-  };
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={handleConfirm}
+              {...dialogProps.confirmButtonProps}
+            >
+              {dialogProps.confirmText || 'OK'}
+            </Button>
+          </DialogActions>
+        </StyledContentDiv>
+      )}
+    </Dialog>
+  );
 
   return {
     renderConfirmationDialog,

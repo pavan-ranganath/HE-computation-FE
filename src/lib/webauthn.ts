@@ -169,8 +169,8 @@ export function handleRegistrationError(
 // Retrieving environment variables
 const domain = process.env.APP_DOMAIN!; // The domain of the application
 
-export const origin =
-  process.env.NODE_ENV === 'production'
+export const origin
+  = process.env.NODE_ENV === 'production'
     ? `https://${domain}`
     : `http://${domain}`;
 
@@ -244,8 +244,8 @@ export const authOptions: AuthOptions = {
 
           // Verifying the authentication response
           // used to validate and verify the authenticity of a web authentication response by comparing it against the expected challenge, origin, RPID, and authenticator information
-          const { verified, authenticationInfo: info } =
-            await verifyAuthenticationResponse({
+          const { verified, authenticationInfo: info }
+            = await verifyAuthenticationResponse({
               expectedChallenge: regObg.challenge,
               expectedOrigin,
               expectedRPID: domain,

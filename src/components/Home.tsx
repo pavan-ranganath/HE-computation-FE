@@ -12,21 +12,21 @@ export default function Home(): JSX.Element {
       <section>
         <Box sx={{ textAlign: 'center' }}>
           <AutoAwesome
-            className='page-title'
+            className="page-title"
             sx={{ width: '3rem', height: '3rem' }}
           />
           <Typography
-            variant='h5'
-            component='h1'
+            variant="h5"
+            component="h1"
             gutterBottom
-            className='page-title'
+            className="page-title"
           >
             {SITE_CONFIG.title}
           </Typography>
           <Typography
-            variant='subtitle2'
+            variant="subtitle2"
             gutterBottom
-            className='page-subtitle'
+            className="page-subtitle"
           >
             {SITE_CONFIG.description}
           </Typography>
