@@ -297,8 +297,57 @@ async function registerWebauthn(
     //   by invoking the browser's built-in WebAuthn API with the received registration options (opt)
     // - The startRegistration function returns a credential object that represents the user's newly
     //   registered WebAuthn credential
+    // opt = {
+    //   ...opt,
+    //   extensions: { prf: { eval: { first: crypto.getRandomValues(new Uint8Array(32)), second: crypto.getRandomValues(new Uint8Array(32)) } } },
+    // };
+
     const credential = await startRegistration(opt);
 
+    // if (
+    //   !(credential.clientExtensionResults as AuthenticationExtensionsClientOutputs).prf?.enabled
+    //   || !(credential.clientExtensionResults as AuthenticationExtensionsClientOutputs).prf?.results
+    // ) {
+    //   openConfirmDialog({
+    //     title: 'Unsupported Feature',
+    //     content: (
+    //       <>
+    //         <p>Your browser currently doesn't support WebAuthn extensions (PRF).</p>
+    //         <p>
+    //           To enable this feature on Chrome, please visit the following link:
+    //           {' '}
+    //           <a href="chrome://flags/#enable-experimental-web-platform-features" target="_blank" rel="noreferrer noopener">
+    //             chrome://flags/#enable-experimental-web-platform-features
+    //           </a>
+    //           .
+    //         </p>
+    //         <p>
+    //           <strong>Note:</strong>
+    //           {' '}
+    //           This feature is only supported on the following platforms:
+    //         </p>
+    //         <ul>
+    //           <li>iOS 18.0+ Beta</li>
+    //           <li>iPadOS 18.0+ Beta</li>
+    //           <li>Mac Catalyst 18.0+ Beta</li>
+    //           <li>macOS 15.0+ Beta</li>
+    //           <li>visionOS 2.0+ Beta</li>
+    //         </ul>
+    //       </>
+    //     ),
+    //     hideCancelButton: true,
+    //   });
+
+    //   return;
+    //   // throw new Error(
+    //   //   'This browser does not support the Webauthn extensions (PRF) needed for this demo.',
+    //   // );
+    // }
+    // const prfResults = (credential.clientExtensionResults as AuthenticationExtensionsClientOutputs).prf!.results!;
+    // prfResults.first = uint8ArrayToHexString(prfResults.first as Uint8Array);
+    // prfResults.second = uint8ArrayToHexString(prfResults.second as Uint8Array);
+
+    console.log('credsUpdated', credential);
     // Send the registration data to the server
     const response = await fetch('/api/auth/register', {
       method: 'POST',
@@ -321,15 +370,16 @@ async function registerWebauthn(
       console.error(errorResp);
     } else {
       openConfirmDialog({
-        title: 'Error',
+        title: 'Success',
         content: 'Your credentials have been registered.',
         hideCancelButton: true,
       });
+
       // toast.success("Your WebAuthn credentials have been registered.", { duration: 10000 });
       // Redirect to the sign-in page
-      setTimeout(() => {
-        router.push('/signin');
-      }, 2000);
+      // setTimeout(() => {
+      //   router.push('/signin');
+      // }, 2000);
     }
   } catch (err) {
     handleRegistrationError(err, setAlertBarProps);

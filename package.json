@@ -30,6 +30,7 @@
     "base64url": "^3.0.1",
     "cookie": "^0.6.0",
     "dayjs": "^1.11.13",
+    "iso-base": "^4.0.0",
     "jsonwebtoken": "^9.0.2",
     "mermaid": "^11.0.2",
     "moment": "^2.30.1",

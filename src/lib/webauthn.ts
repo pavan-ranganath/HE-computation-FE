@@ -5,7 +5,6 @@
 import { verifyAuthenticationResponse } from '@simplewebauthn/server';
 // The `RegistrationResponseJSON` type is imported from the "@simplewebauthn/typescript-types" module.
 // It is used to define the structure of a registration response JSON object related to a web authentication process.
-import type { AuthenticationResponseJSON } from '@simplewebauthn/typescript-types';
 import mongoose from 'mongoose';
 // The `dbConnect` function is imported from a local file named "mongodb.js". Custom function responsible for establishing a connection to the MongoDB database.
 // import toast from "react-hot-toast";
@@ -50,22 +49,23 @@ export type Field<T> = {
  * @param challenge - The challenge value to be saved.
  * @param userID - The ID of the user associated with the challenge.
  */
-export async function saveChallenge({
+export async function saveRegistrationOption({
   userID,
-  challenge,
+  regOptions,
 }: {
-  challenge: string;
+  regOptions: any;
   userID: string;
 }) {
+  const challenge = regOptions.challenge;
   console.log('saveChallenge', challenge, userID);
   // Saving a challenge value in the "challenge" collection of the database for a specific user
-  await mongoose.connection.db?.collection('challenge').updateOne(
+  await mongoose.connection.db?.collection('regOptions').updateOne(
     {
       userID,
     },
     {
       $set: {
-        value: challenge,
+        ...regOptions,
       },
     },
     {
@@ -79,19 +79,15 @@ export async function saveChallenge({
  * @param userID - The ID of the user associated with the challenge.
  * @returns The challenge value retrieved from the database.
  */
-export async function getChallenge(userID: string) {
+export async function getRegistrationOption(userID: string) {
   // Retrieving and deleting a challenge value from the "challenge" collection for a specific user
   const challengeObj = await mongoose.connection.db
-    ?.collection<{
-      userID: string;
-      value: string;
-      userSystemId: string;
-    }>('challenge')
+    ?.collection('regOptions')
     .findOneAndDelete({
       userID,
     });
 
-  return challengeObj?.value; // Returning the challenge value
+  return challengeObj; // Returning the challenge value
 }
 
 /**
@@ -197,29 +193,24 @@ export const authOptions: AuthOptions = {
 
         // Destructuring properties from the request body
         const {
-          id,
-          rawId,
-          type,
-          clientDataJSON,
-          authenticatorData,
-          signature,
-          userHandle,
-        } = req.body;
+          credential: credentialFromReq,
+          // encryptedData: encryptedDataReq,
+        }: { credential: string; encryptedData: string } = req.body;
 
-        // Creating a credential object
-        const credential: AuthenticationResponseJSON = {
-          id,
-          rawId,
-          type,
-          response: {
-            clientDataJSON,
-            authenticatorData,
-            signature,
-            userHandle,
-          },
-          clientExtensionResults: {},
-        };
-
+        // // Creating a credential object
+        // const credential: AuthenticationResponseJSON = {
+        //   id,
+        //   rawId,
+        //   type,
+        //   response: {
+        //     clientDataJSON,
+        //     authenticatorData,
+        //     signature,
+        //     userHandle,
+        //   },
+        //   clientExtensionResults: {},
+        // };
+        const credential = JSON.parse(credentialFromReq);
         // Retrieving the authenticator from the database
         const authenticator = await mongoose.connection.db
           ?.collection<User>(AUTH_TABLE)
@@ -233,10 +224,10 @@ export const authOptions: AuthOptions = {
         }
 
         // Retrieving the challenge for the authenticator
-        const challenge = await getChallenge(authenticator.userID);
+        const regObg = await getRegistrationOption(authenticator.userID);
 
         // Handling the case when the challenge is not found
-        if (!challenge) {
+        if (!regObg) {
           throw new Error('Challenge not found');
         }
 
@@ -255,7 +246,7 @@ export const authOptions: AuthOptions = {
           // used to validate and verify the authenticity of a web authentication response by comparing it against the expected challenge, origin, RPID, and authenticator information
           const { verified, authenticationInfo: info } =
             await verifyAuthenticationResponse({
-              expectedChallenge: challenge,
+              expectedChallenge: regObg.challenge,
               expectedOrigin,
               expectedRPID: domain,
               authenticator: {
@@ -265,16 +256,17 @@ export const authOptions: AuthOptions = {
                 counter: passkeyInfo.registrationInfo.registrationInfo!.counter,
               },
               response: {
-                id,
-                rawId,
-                response: {
-                  clientDataJSON,
-                  authenticatorData,
-                  signature,
-                  userHandle,
-                },
-                clientExtensionResults: {},
-                type,
+                // id,
+                // rawId,
+                // response: {
+                //   clientDataJSON,
+                //   authenticatorData,
+                //   signature,
+                //   userHandle,
+                // },
+                // clientExtensionResults: {},
+                // type,
+                ...credential,
               },
             });
 
@@ -287,7 +279,12 @@ export const authOptions: AuthOptions = {
           throw new Error('Verification failed');
         }
 
-        // Returning the user's email
+        // const key1 = await createEncryptionKey(hexStringToUint8Array((credential.clientExtensionResults as AuthenticationExtensionsClientOutputs).prf!.results!.first as string));
+        // const key2 = await createEncryptionKey(hexStringToUint8Array((credential.clientExtensionResults as AuthenticationExtensionsClientOutputs).prf!.results!.second as string));
+        // const encryptedData = hexStringToUint8Array(encryptedDataReq);
+        // const decryptedData = await decrypt(encryptedData, key1);
+        // // Returning the user's email
+        // console.log('decryptedData', new TextDecoder().decode(decryptedData));
         return { email: authenticator.userID };
       },
     }),

@@ -6,7 +6,7 @@ import type { User } from 'next-auth';
 
 import { AUTH_TABLE } from '@/constants';
 import { dbConnect } from '@/lib/mongodb'; // Imports the function for connecting to the MongoDB database
-import { saveChallenge } from '@/lib/webauthn'; // Imports the necessary functions related to web authentication
+import { saveRegistrationOption } from '@/lib/webauthn'; // Imports the necessary functions related to web authentication
 
 export const dynamic = 'force-dynamic'; // to supress Error processing API request: DynamicServerError: Dynamic server usage: nextUrl.searchParams
 
@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
   const options = await generateAuthenticationOptions({
     rpID: domain,
     userVerification: 'preferred',
+    // extensions: { prf: { eval: { first: uint8ArrayToBase64(crypto.getRandomValues(new Uint8Array(32))), second: uint8ArrayToBase64(crypto.getRandomValues(new Uint8Array(32))) } } } as any,
   });
   console.log('options', options);
 
@@ -74,7 +75,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // Save the authentication challenge associated with the user
-    await saveChallenge({ userID: email, challenge: options.challenge });
+    await saveRegistrationOption({ userID: email, regOptions: options });
   } catch {
     return NextResponse.json(
       { error: 'Could not set up challenge.' },

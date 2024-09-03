@@ -23,7 +23,6 @@ import {
 import { startAuthentication } from '@simplewebauthn/browser';
 // Importing the 'PublicKeyCredentialRequestOptionsJSON' type from the '@simplewebauthn/typescript-types' package
 // This type is used for specifying options when requesting a public key credential for WebAuthn (Web Authentication)
-import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/typescript-types';
 // Importing the 'RedirectType' type from the 'next/dist/client/components/redirect' package
 // This type is used for specifying the type of redirect in Next.js applications
 import { RedirectType } from 'next/dist/client/components/redirect';
@@ -283,8 +282,7 @@ async function signInWithWebauthn(
    * The client (browser) uses these options to construct a PublicKeyCredentialRequestOptions object and initiate the WebAuthn authentication flow.
    * The options define the criteria for successful authentication, including the challenge, acceptable credentials, and user verification requirements.
    */
-  const opt: PublicKeyCredentialRequestOptionsJSON =
-    await optionsResponse.json();
+  const opt = await optionsResponse.json();
 
   // Check if there are any registered credentials available for the user.
   if (!opt.allowCredentials || opt.allowCredentials.length === 0) {
@@ -297,7 +295,10 @@ async function signInWithWebauthn(
     throw new Error('There is no registered credential.');
     // return;
   }
-
+  // opt = {
+  //   ...opt,
+  //   extensions: { prf: { eval: { first: crypto.getRandomValues(new Uint8Array(32)), second: crypto.getRandomValues(new Uint8Array(32)) } } },
+  // };
   /**
    * The startAuthentication function is provided by the '@simplewebauthn/browser' package and is used to initiate the WebAuthn authentication process in the browser.
    * It takes the PublicKeyCredentialRequestOptionsJSON object as input, which contains the necessary options for the authentication process.
@@ -316,13 +317,28 @@ async function signInWithWebauthn(
    * - type: The type of the credential, usually 'public-key'.
    */
   const credential = await startAuthentication(opt);
-
+  // const key1 = await createEncryptionKey((credential.clientExtensionResults as any).prf.results.first);
+  // const key2 = await createEncryptionKey((credential.clientExtensionResults as any).prf.results.second);
+  // const data = 'pavanranganath';
+  // const encryptedData = await encrypt(utf8.decode(data), key1);
+  // const temData = uint8ArrayToHexString(encryptedData);
+  // const decryptedData = await decrypt(hexStringToUint8Array(temData), key1);
+  // console.log(temData);
+  // console.log('decryptedData', new TextDecoder().decode(decryptedData));
+  // const prfResults = (credential.clientExtensionResults as AuthenticationExtensionsClientOutputs).prf!.results!;
+  // prfResults.first = uint8ArrayToHexString(prfResults.first as Uint8Array);
+  // prfResults.second = uint8ArrayToHexString(prfResults.second as Uint8Array);
   // Sign in using next-auth's signIn function, passing the WebAuthn credential details.
   await signIn('webauthn', {
-    ...credential.response,
-    id: credential.id,
-    rawId: credential.rawId,
-    type: credential.type,
+    // credential: {
+    //   id: credential.id,
+    //   rawId: credential.rawId,
+    //   type: credential.type,
+    //   response: { ...credential.response },
+    //   clientExtensionResults: { ...credential.clientExtensionResults },
+    // },
+    credential: JSON.stringify(credential),
     callbackUrl: redirectUrl,
+    // encryptedData: temData,
   });
 }

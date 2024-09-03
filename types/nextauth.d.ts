@@ -1,6 +1,7 @@
 import type { VerifiedRegistrationResponse } from '@simplewebauthn/server';
 
 export type passkeyObj = {
+  regOpt: any;
   credentialId: string; // The ID of the credential associated with the passkey
   friendlyName: string; // A friendly name or label for the passkey
   credential: RegistrationResponseJSON; // The registration response JSON object representing the passkey credential

@@ -3,12 +3,7 @@
 // Import the `generateRegistrationOptions` and `verifyRegistrationResponse` functions
 // from the "@simplewebauthn/server" module
 // These functions are used to generate and verify WebAuthn registration options and responses
-import {
-  generateRegistrationOptions,
-  verifyRegistrationResponse,
-} from '@simplewebauthn/server';
-// Import the `RegistrationResponseJSON` type from the "@simplewebauthn/typescript-types" module
-// Used to define the structure of a WebAuthn registration response in JSON format
+import { verifyRegistrationResponse } from '@simplewebauthn/server';
 import type { RegistrationResponseJSON } from '@simplewebauthn/typescript-types';
 // Import the `mongoose` library for MongoDB object modeling
 // Used for interacting with the MongoDB database using an Object-Document Mapping (ODM) approach
@@ -29,11 +24,12 @@ import { getSession, setSession } from '@/lib/sessionMgmt';
 // These functions and types are related to WebAuthn (Web Authentication) functionality
 import {
   authOptions,
-  getChallenge,
-  saveChallenge,
+  getRegistrationOption,
   saveCredentials,
+  saveRegistrationOption,
   updateCredentials,
 } from '@/lib/webauthn';
+import { generateRegistrationOptions } from '@/types/WebAuthn';
 
 // Import the `getSession` and `setSession` functions from the "@/lib/sessionMgmt" module
 // Used to get and set session data in the server response
@@ -49,7 +45,6 @@ export const origin =
 const expectedOrigin: string[] = process.env.NEXTAUTH_EXPECTED_ORIGIN
   ? [process.env.NEXTAUTH_EXPECTED_ORIGIN]
   : [origin];
-
 const appName = process.env.APP_NAME!;
 
 // Generate registration options for WebAuthn based on user details
@@ -98,6 +93,7 @@ const generateWebAuthnOptions = (email: string, fullName: string) => {
       userVerification: 'preferred',
     },
     supportedAlgorithmIDs: [-7, -257],
+    // extensions: { prf: { eval: { first: uint8ArrayToBase64(crypto.getRandomValues(new Uint8Array(32))), second: uint8ArrayToBase64(crypto.getRandomValues(new Uint8Array(32))) } } },
   });
 
   // Return the generated registration options
@@ -152,6 +148,7 @@ const handleInvalidResponseError = () => {
 };
 
 const PASSKEY_SESSION_NAME = 'PASSKEY_REGISTRATION';
+
 // Handler function for GET requests
 /**
  *  Generating WebAuthn (Web Authentication) registration options, handling user registration, and saving the credentials in a MongoDB database.
@@ -209,7 +206,7 @@ export async function GET(req: NextRequest) {
 
     try {
       // Save the challenge for the user
-      await saveChallenge({ userID: email, challenge: options.challenge });
+      await saveRegistrationOption({ userID: email, regOptions: options });
     } catch (err) {
       console.log('Could not set up challenge.', err);
       return handleChallengeError('Could not set up challenge.');
@@ -242,7 +239,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Generate registration options based on the provided user details
-  const options = await generateWebAuthnOptions(email, fullName);
+  const options = await generateWebAuthnOptions(email!, fullName!);
 
   // Check if options are generated
   if (!options) {
@@ -253,7 +250,7 @@ export async function GET(req: NextRequest) {
   }
   try {
     // Save the challenge for the user
-    await saveChallenge({ userID: email, challenge: options.challenge });
+    await saveRegistrationOption({ userID: email!, regOptions: options });
   } catch (err) {
     console.log('Could not set up challenge.', err);
     return handleChallengeError('Could not set up challenge.');
@@ -286,10 +283,10 @@ export async function POST(req: NextRequest) {
   }
 
   // Retrieve the challenge for the user's email
-  const challenge = await getChallenge(user.email);
+  const regOpt = await getRegistrationOption(user.email);
 
   // If challenge doesn't exist, return an error response
-  if (!challenge) {
+  if (!regOpt) {
     return handleChallengeError('Pre-registration is required.');
   }
 
@@ -306,7 +303,7 @@ export async function POST(req: NextRequest) {
       credential,
       domain,
       expectedOrigin,
-      challenge,
+      regOpt.challenge,
     );
 
   // If the response is not verified or missing registration info, return an error response
@@ -324,6 +321,7 @@ export async function POST(req: NextRequest) {
           friendlyName: `Passkey-${Math.floor(100000 + Math.random() * 900000)}`,
           credential: { ...credential },
           registrationInfo: { verified, registrationInfo: info },
+          regOpt,
           credentialId: credential.id,
         },
       ],
@@ -363,10 +361,10 @@ export async function PUT(req: NextRequest) {
   }
 
   // Retrieve the challenge for the user's email
-  const challenge = await getChallenge(user.email);
+  const regOpt = await getRegistrationOption(user.email);
 
   // If challenge doesn't exist, return an error response
-  if (!challenge) {
+  if (!regOpt) {
     return handleChallengeError('Pre-registration is required.');
   }
 
@@ -383,7 +381,7 @@ export async function PUT(req: NextRequest) {
       credential,
       domain,
       origin,
-      challenge,
+      regOpt.challenge,
     );
 
   // If the response is not verified or missing registration info, return an error response
@@ -399,6 +397,7 @@ export async function PUT(req: NextRequest) {
         credential: { ...credential },
         registrationInfo: { verified, registrationInfo: info },
         credentialId: credential.id,
+        regOpt,
       },
       user.email,
     );
