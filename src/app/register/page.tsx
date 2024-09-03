@@ -17,24 +17,26 @@ import {
   Typography,
 } from '@mui/material';
 import { startRegistration } from '@simplewebauthn/browser'; // WebAuthn registration function
+import axios from 'axios';
 import moment from 'moment';
 import { matchIsValidTel, MuiTelInput } from 'mui-tel-input';
 import { RedirectType } from 'next/dist/client/components/redirect'; // Next.js redirect type
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import Link from 'next/link'; // Link component from Next.js for navigation
-import { redirect, useRouter } from 'next/navigation'; // Next.js functions for navigation
+import { redirect } from 'next/navigation'; // Next.js functions for navigation
 import { useSession } from 'next-auth/react'; // NextAuth session hook
 import { useEffect, useState } from 'react'; // React hook for side effects
 import { Controller, useForm } from 'react-hook-form'; // Form management library
 import * as yup from 'yup'; // Yup library for form validation
 
-import LoadingSpinner from '@/components/shared/Loading';
+import { useCryptoContext } from '@/components/shared/CryptoContextProvder';
+import SubmitButton from '@/components/shared/SubmitButton';
 import { SITE_CONFIG } from '@/constants';
+import { registerButtonLabel } from '@/constants/registerPage';
 import type { AlertBarProps } from '@/hooks/useAlertBar';
 import type { ConfirmationDialogProps } from '@/hooks/useConfirmDialog';
 import { useSharedUtilContext } from '@/hooks/useSharedUtilContext';
+import type { CKKSContext } from '@/lib/openfhe/openfheCommon.service';
 import { handleRegistrationError } from '@/lib/webauthn';
-
 /**
  * The Register component handles the user registration process.
  * It displays a registration form where users can enter their first name, last name, and email.
@@ -49,17 +51,19 @@ import { handleRegistrationError } from '@/lib/webauthn';
 export default function Register(): JSX.Element {
   // Retrieving session data and status using NextAuth hook
   const { status } = useSession();
-  const [loadingMessage, setLoadingMessage] = useState<string>('');
   // Checking authorization status
   const authorized = status === 'authenticated';
   const unAuthorized = status === 'unauthenticated';
   const loading = status === 'loading';
   const { setAlertBarProps, openConfirmDialog } = useSharedUtilContext();
-  // Initializing Next.js router
-  const router = useRouter();
+  const { cryptoContext } = useCryptoContext();
+
+  const [registerButtonText, setRegisterButtonText] = useState(registerButtonLabel);
+  const [registerButtonLoading, setRegisterButtonLoading] = useState(false);
 
   // Validation schema for registration form
   const registerForm = {
+    ssn: yup.string().length(9, 'It should be 9 digit Social Security number').required('Social Security Number is required'),
     fullName: yup.string().required('Full name is required'),
     email: yup
       .string()
@@ -98,18 +102,31 @@ export default function Register(): JSX.Element {
 
   // Form submission handler
   async function onSubmit(data: any) {
-    setLoadingMessage('Registering...');
+    if (!cryptoContext) {
+      openConfirmDialog({
+        title: 'Error',
+        content: 'Crypto Context not found please refresh and try again',
+        hideCancelButton: true,
+      });
+      return;
+    }
+    setRegisterButtonLoading(true);
+
+    setRegisterButtonText('Registering...');
     const dobFormatted = moment(data.dob).format('YYYY-MM-DD');
     await registerWebauthn(
       data.email,
       data.fullName,
       dobFormatted,
       data.mobile,
-      router,
+      data.ssn,
+      setRegisterButtonText,
       openConfirmDialog,
       setAlertBarProps,
+      cryptoContext,
     );
-    setLoadingMessage('');
+    setRegisterButtonLoading(false);
+    // setLoadingMessage('');
   }
 
   // Effect hook to handle page navigation based on session status
@@ -130,7 +147,7 @@ export default function Register(): JSX.Element {
       <>
         {/* Display a loading backdrop */}
         <Backdrop
-          open={true}
+          open
           sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
         >
           <CircularProgress color="inherit" />
@@ -166,6 +183,19 @@ export default function Register(): JSX.Element {
         </Typography>
       </Box>
       <form onSubmit={handleSubmit(onSubmit)}>
+        {/* SSN field */}
+        <TextField
+          type="text"
+          variant="outlined"
+          color="primary"
+          label="Social Security Number (SSN)"
+          {...register('ssn')}
+          error={touchedFields.ssn && Boolean(errors.ssn)}
+          helperText={errors.ssn?.message ? errors.ssn?.message : 'SSN will be encrypted on your device'}
+          fullWidth
+          sx={{ mb: 2 }}
+          disabled={registerButtonLoading}
+        />
         {/* Full Name field */}
         <TextField
           id="fullName"
@@ -178,6 +208,7 @@ export default function Register(): JSX.Element {
           error={touchedFields.fullName && Boolean(errors.fullName)}
           helperText={touchedFields.fullName ? errors.fullName?.message : ''}
           sx={{ mb: 2 }}
+          disabled={registerButtonLoading}
         />
         {/* Date of Birth field */}
         <TextField
@@ -191,6 +222,7 @@ export default function Register(): JSX.Element {
           helperText={touchedFields.dob ? errors.dob?.message : ''}
           fullWidth
           sx={{ mb: 2 }}
+          disabled={registerButtonLoading}
         />
         {/* Email field */}
         <TextField
@@ -203,11 +235,13 @@ export default function Register(): JSX.Element {
           helperText={touchedFields.email ? errors.email?.message : ''}
           fullWidth
           sx={{ mb: 2 }}
+          disabled={registerButtonLoading}
         />
         {/* Phone field */}
         <Controller
           name="mobile"
           control={control}
+          disabled={registerButtonLoading}
           rules={{
             validate: (value) => {
               console.log('value', value);
@@ -234,9 +268,17 @@ export default function Register(): JSX.Element {
           )}
         />
         {/* Submit button */}
-        <Button variant="contained" color="primary" type="submit">
+        <SubmitButton
+          isSubmitting={registerButtonLoading}
+          submittingText={registerButtonText}
+        >
+          <Button variant="contained" type="submit" color="primary">
+            {registerButtonLabel}
+          </Button>
+        </SubmitButton>
+        {/* <Button variant="contained" color="primary" type="submit">
           Register
-        </Button>
+        </Button> */}
       </form>
 
       {/* Sign-in link */}
@@ -250,7 +292,7 @@ export default function Register(): JSX.Element {
       <br />
       {/* Contact us link */}
 
-      {loadingMessage && <LoadingSpinner message={loadingMessage} />}
+      {/* {loadingMessage && <LoadingSpinner message={loadingMessage} />} */}
     </>
   );
 }
@@ -267,9 +309,11 @@ async function registerWebauthn(
   fullName: string,
   dob: string,
   mobile: string,
-  router: AppRouterInstance,
+  ssn: string,
+  setRegisterButtonText: (buttonText: string) => void,
   openConfirmDialog: (props: ConfirmationDialogProps) => void,
   setAlertBarProps: (props: AlertBarProps) => void,
+  cryptoContext: CKKSContext,
 ) {
   // Construct the registration URL
   const url = new URL('/api/auth/register', window.location.origin);
@@ -277,7 +321,7 @@ async function registerWebauthn(
 
   // Fetch the registration options from the server
   const optionsResponse = await fetch(url.toString());
-  const opt = await optionsResponse.json();
+  let opt = await optionsResponse.json();
 
   // Handle error if the options request failed
   if (optionsResponse.status !== 200) {
@@ -298,12 +342,14 @@ async function registerWebauthn(
     //   by invoking the browser's built-in WebAuthn API with the received registration options (opt)
     // - The startRegistration function returns a credential object that represents the user's newly
     //   registered WebAuthn credential
-    // opt = {
-    //   ...opt,
-    //   extensions: { prf: { eval: { first: crypto.getRandomValues(new Uint8Array(32)), second: crypto.getRandomValues(new Uint8Array(32)) } } },
-    // };
+    opt = {
+      ...opt,
+      extensions: {
+        prf: { eval: { first: crypto.getRandomValues(new Uint8Array(32)), second: crypto.getRandomValues(new Uint8Array(32)) } },
+      },
+    };
 
-    const credential = await startRegistration(opt);
+    const credential: any = await startRegistration(opt);
 
     // if (
     //   !(credential.clientExtensionResults as AuthenticationExtensionsClientOutputs).prf?.enabled
@@ -348,15 +394,31 @@ async function registerWebauthn(
     // prfResults.first = uint8ArrayToHexString(prfResults.first as Uint8Array);
     // prfResults.second = uint8ArrayToHexString(prfResults.second as Uint8Array);
 
-    console.log('credsUpdated', credential);
+    // console.log('credsUpdated', credential);
+    setRegisterButtonText('Generating Encryption Keys...');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
+    cryptoContext.generateKey();
+    cryptoContext.addschemeSwitchingCC();
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
+    setRegisterButtonText('Encrypting SSN...');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
+    const encryptedSSN = cryptoContext.encryptString(ssn);
+    const serializedEncrypedSSN = cryptoContext.createCipherTextBuffer(encryptedSSN);
+    setRegisterButtonText('Sending data...');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
+    // Create a FormData object
+    const formData = new FormData();
+
+    // Convert ArrayBuffer to Blob and append it
+    const ssnBlob = new Blob([serializedEncrypedSSN], { type: 'application/octet-stream' });
+    formData.append('ssn', ssnBlob, 'ssn.bin');
+    formData.append('credential', JSON.stringify(credential));
+
     // Send the registration data to the server
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
+    const response = await axios.post('/api/auth/register', formData, {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
       },
-      body: JSON.stringify(credential),
-      credentials: 'include',
     });
 
     // Handle error if the registration request failed
@@ -367,8 +429,7 @@ async function registerWebauthn(
         content: 'Could not register credentials',
         hideCancelButton: true,
       });
-      const errorResp = await response.json();
-      console.error(errorResp);
+      throw new Error(response.data);
     } else {
       openConfirmDialog({
         title: 'Success',

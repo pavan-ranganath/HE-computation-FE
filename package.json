@@ -27,6 +27,7 @@
     "@simplewebauthn/browser": "^10.0.0",
     "@simplewebauthn/server": "^10.0.1",
     "@types/mermaid": "^9.1.0",
+    "axios": "^1.7.7",
     "base64url": "^3.0.1",
     "buffer": "^6.0.3",
     "cookie": "^0.6.0",

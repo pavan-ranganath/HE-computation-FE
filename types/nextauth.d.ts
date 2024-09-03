@@ -1,3 +1,5 @@
+import type { Buffer } from 'node:buffer';
+
 import type { VerifiedRegistrationResponse } from '@simplewebauthn/server';
 
 export type passkeyObj = {
@@ -35,5 +37,6 @@ declare module 'next-auth' {
       dob: Field<number>; // The last name of the user
       mobile: Field<string>; // The last name of the user
     };
+    ssn?: Buffer;
   };
 }

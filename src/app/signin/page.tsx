@@ -129,7 +129,7 @@ export default function SignInComponent() {
         severity: 'error',
       });
     }
-  }, [loading, unAuthorized, status, authorized, error]);
+  }, [loading, unAuthorized, status, authorized, error, setAlertBarProps]);
 
   // If the user refreshed the page or somehow navigated to the protected page,
   // show a loading spinner.
@@ -138,7 +138,7 @@ export default function SignInComponent() {
       <>
         {/* Display a backdrop with a loading spinner */}
         <Backdrop
-          open={true}
+          open
           sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
         >
           <CircularProgress color="inherit" />

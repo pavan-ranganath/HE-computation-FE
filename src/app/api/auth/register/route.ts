@@ -3,6 +3,8 @@
 // Import the `generateRegistrationOptions` and `verifyRegistrationResponse` functions
 // from the "@simplewebauthn/server" module
 // These functions are used to generate and verify WebAuthn registration options and responses
+import { Buffer } from 'node:buffer';
+
 import { verifyRegistrationResponse } from '@simplewebauthn/server';
 import type { RegistrationResponseJSON } from '@simplewebauthn/typescript-types';
 // Import the `mongoose` library for MongoDB object modeling
@@ -267,38 +269,60 @@ export async function GET(req: NextRequest) {
 
 // Handler function for POST requests
 export async function POST(req: NextRequest) {
+  try {
   // Establishing a connection to the database
-  await dbConnect();
+    await dbConnect();
 
-  // Retrieve the session from the request
-  const session = getSession(req, PASSKEY_SESSION_NAME) as any;
-  const { user } = session;
+    // Retrieve the session from the request
+    const session = getSession(req, PASSKEY_SESSION_NAME) as any;
+    const { user } = session;
 
-  // If the user is not connected or doesn't have an email, return an error response
-  if (!user || !user.email) {
-    return NextResponse.json(
-      { error: 'You are not connected.' },
-      { status: 401 },
-    );
-  }
+    // If the user is not connected or doesn't have an email, return an error response
+    if (!user || !user.email) {
+      return NextResponse.json(
+        { error: 'You are not connected.' },
+        { status: 401 },
+      );
+    }
 
-  // Retrieve the challenge for the user's email
-  const regOpt = await getRegistrationOption(user.email);
+    // Retrieve the challenge for the user's email
+    const regOpt = await getRegistrationOption(user.email);
 
-  // If challenge doesn't exist, return an error response
-  if (!regOpt) {
-    return handleChallengeError('Pre-registration is required.');
-  }
+    // If challenge doesn't exist, return an error response
+    if (!regOpt) {
+      return handleChallengeError('Pre-registration is required.');
+    }
+    // Get the FormData from the request
+    const reqData = await req.formData();
 
-  // Parse the registration response received in the request body
-  const credential: RegistrationResponseJSON = await req.json();
+    // Extract the credential field and ensure it is a string
+    const credentialEntry = reqData.get('credential');
 
-  /**
-   * Verify the registration response received from the client.
-   * This function verifies the response data sent by the client during
-   * WebAuthn registration and performs necessary checks for authenticity.
-   */
-  const { verified, registrationInfo: info }
+    if (typeof credentialEntry !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid credential format' },
+        { status: 400 },
+      );
+    }
+    // Extract the credential field (assuming it was sent as a string or JSON string)
+    const credential: RegistrationResponseJSON = JSON.parse(credentialEntry) as RegistrationResponseJSON;
+
+    // Extract the 'ssas' file (which is an ArrayBuffer in the client)
+    const ssnBlob = reqData.get('ssn') as Blob;
+
+    // Convert the Blob to an ArrayBuffer
+    const ssnArrayBuffer = await ssnBlob.arrayBuffer();
+
+    const ssnBuffer = Buffer.from(ssnArrayBuffer);
+
+    // Convert the ArrayBuffer to a Buffer (Node.js type)
+
+    /**
+     * Verify the registration response received from the client.
+     * This function verifies the response data sent by the client during
+     * WebAuthn registration and performs necessary checks for authenticity.
+     */
+    const { verified, registrationInfo: info }
     = await verifyWebAuthnRegistrationResponse(
       credential,
       domain,
@@ -306,12 +330,11 @@ export async function POST(req: NextRequest) {
       regOpt.challenge,
     );
 
-  // If the response is not verified or missing registration info, return an error response
-  if (!verified || !info) {
-    return handleInvalidResponseError();
-  }
+    // If the response is not verified or missing registration info, return an error response
+    if (!verified || !info) {
+      return handleInvalidResponseError();
+    }
 
-  try {
     // Save the credentials for the user
     await saveCredentials({
       id: user.email,
@@ -331,6 +354,7 @@ export async function POST(req: NextRequest) {
         dob: { value: user.dob, verified: false },
         mobile: { value: user.mobile, verified: false },
       },
+      ssn: ssnBuffer,
     });
 
     return NextResponse.json({ success: true }, { status: 201 });

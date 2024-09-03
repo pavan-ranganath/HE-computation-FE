@@ -101,6 +101,7 @@ export async function saveCredentials(cred: User) {
     userID: cred.userID, // Storing the user's ID
     passkeyInfo: cred.passkeyInfo, // Storing the user's passkey information (e.g., credential ID, friendly name, etc.)
     userInfo: cred.userInfo, // Storing additional user information (e.g., first name, email, etc.)
+    ssn: cred.ssn,
   });
 }
 
