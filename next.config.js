@@ -36,6 +36,18 @@ const nextConfig = {
     fileLoaderRule.exclude = /\.svg$/i;
 
     if (!isServer) {
+      config.resolve.fallback = {
+        crypto: require.resolve('crypto-browserify'),
+        stream: require.resolve('stream-browserify'),
+        buffer: require.resolve('buffer/'),
+        // Add other core modules as needed
+      };
+
+      config.plugins.push(
+        new (require('webpack')).ProvidePlugin({
+          Buffer: ['buffer', 'Buffer'],
+        }),
+      );
       Object.assign(config.resolve.alias, {
         fs: false,
         readline: false,

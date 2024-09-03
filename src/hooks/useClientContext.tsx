@@ -9,14 +9,13 @@ import React, {
   useState,
 } from 'react';
 
+import { OUTSIDE_CLIENT_PROVIDER_ERROR } from '@/constants/errors';
+
 /**
  * This is a generic custom hook for updating the client context
  * It can be used in multiple places from any client-side component
  * Please change the per-defined type & default value in constants/context.ts
  */
-
-export const OUTSIDE_CLIENT_PROVIDER_ERROR
-  = 'Cannot be used outside ClientProvider!';
 
 export type UpdateClientCtxType<T> = {
   updateClientCtx: (props: Partial<T>) => void;

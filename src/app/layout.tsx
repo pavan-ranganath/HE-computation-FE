@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import * as React from 'react';
 
 import AuthProvider from '@/components/shared/AuthProvider';
+import { CryptoProvider } from '@/components/shared/CryptoContextProvder';
 import { SITE_CONFIG } from '@/constants';
 import { GLOBAL_STYLES } from '@/styles';
 
@@ -56,7 +57,9 @@ export default function RootLayout({
       <GlobalStyles styles={GLOBAL_STYLES} />
       <body>
         <AuthProvider>
-          <Container sx={{ pl: 0, pr: 0 }}>{children}</Container>
+          <CryptoProvider>
+            <Container sx={{ pl: 0, pr: 0 }}>{children}</Container>
+          </CryptoProvider>
         </AuthProvider>
       </body>
     </html>

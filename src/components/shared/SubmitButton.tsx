@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@mui/material';
-import { CircularProgress } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
 import * as React from 'react';
 
 export type SubmitButtonProps = {
@@ -17,27 +17,28 @@ const SubmitButton = ({
   submittingSize = '1rem',
   submittingText = 'Submitting...',
 }: SubmitButtonProps) => {
-  const submittingIconColor = submittingColor || children.props.color;
+  const { startIcon, disabled, color, ...rest } = children.props;
+  const submittingIconColor = submittingColor || color;
+
   return (
-    <>
-      {React.cloneElement(children, {
-        startIcon: !isSubmitting
+    <Button
+      {...rest}
+      startIcon={
+        !isSubmitting
           ? (
-              children.props.startIcon
+              startIcon
             )
           : (
               <CircularProgress
                 style={{ color: submittingIconColor }}
                 size={submittingSize}
               />
-            ),
-        disabled: children.props.disabled ?? isSubmitting,
-        children:
-          isSubmitting && submittingText
-            ? submittingText
-            : children.props.children,
-      })}
-    </>
+            )
+      }
+      disabled={disabled ?? isSubmitting}
+    >
+      {isSubmitting && submittingText ? submittingText : children.props.children}
+    </Button>
   );
 };
 

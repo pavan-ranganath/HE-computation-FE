@@ -4,7 +4,7 @@ import { Box, Typography } from '@mui/material';
 import ProfileInfo from '@/components/shared/ProfileInfo';
 import { SITE_CONFIG } from '@/constants';
 
-import GenerateCryptoContext from './HE/GenerateCryptoContext';
+import GenerateKeys from './Home/GenerateKeys';
 
 export default function Home(): JSX.Element {
   return (
@@ -32,7 +32,7 @@ export default function Home(): JSX.Element {
           </Typography>
         </Box>
         <ProfileInfo />
-        <GenerateCryptoContext />
+        <GenerateKeys />
       </section>
     </main>
   );
