@@ -1,128 +1,167 @@
-# ReactJs 19.x + NextJs 15.x + MUI 6.x + TypeScript Starter and Boilerplate
+# Advanced Identity Verification Process (Computation Domain)
 
-<div align="center">
-  <h2>2024/2025: 🔋 ReactJs 19.x + NextJs 15.x + MUI 6.x + TypeScript Starter</h2>
-  <p>The scaffold for NextJs 15.x (App Router), React Hook Form, Material UI(MUI 6.x),Typescript and ESLint, and TypeScript with Absolute Import, Seo, Link component, pre-configured with Husky.</p>
+## Overview
 
-  <p>With simple example of ReactJs 19.x, NextJs 15.x API, React-hook-form with zod, fetch remote api, 404/500 error pages, MUI SSR usage, Styled component, MUI AlertBar, MUI confirmation dialog, Loading button, Client-side component & React Context update hook</p>
+This document outlines the **Advanced Identity Verification Process** involving three key entities: the **Client**, the **Service Provider**, and the **Computational Domain**. The process is divided into two primary sections: **Registration** and **Advanced 2-Step Verification**.
 
-🚘🚘🚘 [**Click here to see an online demo**](https://mui-nextjs-ts.vercel.app) 🚘🚘🚘
+---
 
-If you prefer Tailwind css, check this: [Tailwind-CSS-Version](https://github.com/theodorusclarence/ts-nextjs-tailwind-starter)
+## Sequence Diagram
 
-</div>
+Below is a visual representation of the entire process, depicted in a sequence diagram:
 
-## Demo
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Service Provider
+    participant Computational Domain
 
-[<img src="https://alexstack.github.io/reactStarter/asset/NextJs14-mui5.gif">](https://mui-nextjs-ts.vercel.app)
+    %% Registration Section
+    rect rgb(220, 240, 255)
+    Note over Client, Service Provider: Registration
+    Client->>Client: Generate Homomorphic Keys
+    Client->>Client: Input profile Information <br/> (Username, Name, Email, Phone)
+    Client->>Client: Input SSN and generate Encrypted SSN
+    Client->>Service Provider: Register with Encrypted SSN, <br/> Profile Information, Question & Hashed Answer <br/> (6-digit code, First name, City of birth, DOB) <br/> using passkey
+    Client->>Client: Store Encrypted SSN and Homomorphic Keys
+    end
 
-🚘🚘🚘 [**Click here to see an online demo**](https://mui-nextjs-ts.vercel.app) 🚘🚘🚘
+    %% Advanced 2-Step Verification Process
+    rect rgb(255, 240, 220)
+    Note over Client, Blockchain: Advanced 2-Step Verification Process
+    Client->>Service Provider: Initial login using passkey
+    Service Provider->>Service Provider: Retrieve Encrypted SSN
+    Service Provider->>Service Provider: Generate Random 10-digit Code
+    Service Provider->>Service Provider: Select a Random Question <br/> that was provided during registration
+    Service Provider->>Computational Domain: Request SSN Verification by <br/> sending phone/email, Encrypted SSN, <br/> Question, and 10-digit Code
+    Computational Domain->>Computational Domain: Temporarily Store Encrypted SSN, Question, and 10-digit Code
+    Computational Domain->>Client: Send Verification Link to Email/Phone
 
-## Clone this repository for React 19.x with NextJs 15.x or React 18.x with NextJs 14.x
+    Client->>Client: Access Link
+    Client->>Client: Provide Homomorphic Keys and Encrypted SSN
+    Client->>Computational Domain: Request Public Key
+    Computational Domain->>Client: Send Public Key
+    Client->>Client: Generate Proxy Re-encryption Key <br/> using Computational Domain's Public Key
+    Client->>Computational Domain: Send Encrypted SSN and Proxy Re-encryption Key
 
-- Clone & install React19-Next15-MUI6-TS-Starter:
-  - `git clone -b react19-nextjs15 https://github.com/AlexStack/nextjs-materia-mui-typescript-hook-form-scaffold-boilerplate-starter.git react19-nextjs15-mui6-ts-starter && cd react19-nextjs15-mui6-ts-starter && yarn install && yarn dev -p 3005`
-  - Open <http://localhost:3005>
-  - Note: React 19 is not released yet, there are some warnings in the console, please ignore them.
-- Clone & install React18-Next14-MUI5-TS-Starter:
-  - `git clone -b nextjs14 https://github.com/AlexStack/nextjs-materia-mui-typescript-hook-form-scaffold-boilerplate-starter.git react18-nextjs14-mui5-ts-starter && cd react18-nextjs14-mui5-ts-starter && yarn install && yarn dev -p 3005`
-  - Open <http://localhost:3005>
+    Computational Domain->>Computational Domain: Retrieve Encrypted SSN received from Service Provider
+    Computational Domain->>Computational Domain: Homomorphically Compare SSNs
+    Computational Domain-->>Client: If Comparison Fails, Notify Failed Status
+    Computational Domain-->>Service Provider: If Comparison Fails, Notify Failed Status
+    Service Provider-->>Blockchain: If Comparison Fails, Log Failed Status
+    Computational Domain->>Client: If Comparison Succeeds, Send Random 10-digit Code and Question to Client
 
-## Features
+    Client->>Client: Answer Question, Hash Answer, <br/> Concat with 10-digit Code, then Hash
+    Client->>Computational Domain: Send Final Hash
 
-This repository is 🔋 battery packed with:
+    Computational Domain->>Service Provider: Client has provided the Final Hash
+    Service Provider->>Service Provider: Retrieve the Hashed Answer for Question
+    Service Provider->>Service Provider: Concat Hashed Answer and 10-digit Code, then Hash
+    Service Provider->>Service Provider: Compare Client-provided Hash with Computed Hash
+    Service Provider-->>Client: If Comparison Fails, Notify Failed Status
+    Service Provider-->>Blockchain: If Comparison Fails, Log Failed Status
+    Service Provider->>Blockchain: Log Successful Verification
+    Service Provider->>Client: Notify Successful Identity Verification
+    end
 
-- ⚡️ Next.js 15.x with App Router
-- ⚛️ React 19.x
-- ✨ TypeScript
-- 💨 Material UI — Ready to use Material Design components [check here for the usage](https://mui.com/material-ui/getting-started/usage/)
-- 🎨 React Hook Form — Performant, flexible and extensible forms with easy-to-use validation
-- ⏰ Day.js — A modern day JavaScript Date Library
-- 🔥 Utils: getApiResponse - consoleLog
-- 🃏 Jest — Configured for unit testing
-- 📈 Absolute Import and Path Alias — Import components using `@/` prefix
-- 📏 ESLint — Find and fix problems in your code, also will **auto sort** your imports
-- 💖 Prettier — Format your code consistently
-- 🐶 Husky & Lint Staged — Run scripts on your staged files before they are committed
-- 🤖 Conventional Commit Lint — Make sure you & your teammates follow conventional commit
-- ⏰ Release Please — Generate your changelog by activating the `release-please` workflow
-- 👷 Github Actions — Lint your code on PR
-- 🚘 Automatic Branch and Issue Autolink — Branch will be automatically created on issue **assign**, and auto linked on PR
-- 🔥 Snippets — A collection of useful snippets
-- 👀 Open Graph Helper Function — Awesome open graph generated using [og](https://github.com/theodorusclarence/og), fork it and deploy!
-- 🗺 Site Map — Automatically generate sitemap.xml
-- 📦 Expansion Pack — Easily install common libraries, additional components, and configs.
-
-## Tailwind CSS Version
-
-This starter is original from theodorusclarence/ts-nextjs-tailwind-starter, thank you theodorusclarence! If you prefer Tailwind css, check this: [Tailwind-CSS-Version](https://github.com/theodorusclarence/ts-nextjs-tailwind-starter)
-
-## Getting Started
-
-### 1. Clone this template using one of a few ways
-
-1. Test locally: Using `create-next-app`
-
-   ```bash
-   npx create-next-app -e https://github.com/AlexStack/nextjs-materia-mui-typescript-hook-form-scaffold-boilerplate-starter new-project-name
-   ```
-
-2. Test online: Deploy to Vercel by one click
-
-   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?s=https%3A%2F%2Fgithub.com%2FAlexStack%2Fnextjs-materia-mui-typescript-hook-form-scaffold-boilerplate-starter&showOptionalTeamCreation=false)
-
-### 2. Install dependencies
-
-It is encouraged to use **yarn** so the husky hooks can work properly.
-
-```bash
-yarn install
 ```
 
-### 3. Run the development server
+## 1. Registration Process
 
-You can start the server using this command:
+### 1.1 Overview
 
-```bash
-yarn dev
-```
+The **Registration Process** involves the **Client** securely registering their identity with the **Service Provider**. This process includes generating cryptographic keys, encrypting sensitive data, and storing necessary information for future verifications.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. You can start editing the page by modifying `src/pages/index.tsx`.
+### 1.2 Steps
 
-### 4. Change defaults
+1. **Homomorphic Key Generation:**
 
-There are some things you need to change including title, urls, favicons, etc.
+   - The **Client** generates a pair of homomorphic encryption keys on their device. These keys will be used to encrypt sensitive data (e.g., SSN) before transmitting it to the **Service Provider**.
 
-Find all comments with !STARTERCONF, then follow the guide.
+2. **SSN Encryption:**
 
-Don't forget to change the package name in package.json
+   - The **Client** uses the homomorphic keys to encrypt their **Social Security Number (SSN)**. This encrypted SSN is essential for future identity verification.
 
-### 5. Commit Message Convention
+3. **Profile Information Input:**
 
-This starter is using [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/), it is mandatory to use it to commit changes.
+   - The **Client** inputs their profile information, including:
+     - **Username**
+     - **Name**
+     - **Email**
+     - **Phone Number**
 
-## Projects using this starter
+4. **Final Data Preparation:**
 
-<!--
-TEMPLATE
-- [sitename](https://sitelink.com) ([Source](https://github.com/githublink))
-- [sitename](https://sitelink.com)
--->
+   - The **Client** generates the final encrypted SSN and gathers all necessary registration information, including a security question and its hashed answer. The hashed answer may be based on personal information like:
+     - 6-digit code
+     - First name
+     - City of birth
+     - Date of birth (DOB)
 
-- [HiHB](https://hihb.com/)
+5. **Registration Submission:**
 
-Are you using this starter? Please add your page (and repo) to the end of the list via a [Pull Request](https://github.com/AlexStack/nextjs-materia-mui-typescript-hook-form-scaffold-boilerplate-starter/edit/main/README.md). 😃
+   - The **Client** registers with the **Service Provider** by submitting the following:
+     - **Encrypted SSN**
+     - **Profile Information**
+     - **Security Question & Hashed Answer**
+     - **Passkey** for secure submission
 
-## Folder structure
+6. **Storage:**
+   - The **Client** securely stores the homomorphic keys and encrypted SSN on their device for future use.
 
-![image of folder structure](https://raw.githubusercontent.com/AlexStack/nextjs-materia-mui-typescript-hook-form-scaffold-boilerplate-starter/main/public/images/next-mui-folders.png)
+---
 
-## app/page.tsx code example
+## 2. Advanced 2-Step Verification Process
 
-🚘🚘🚘 [**Click here to see an online demo of below code**](https://mui-nextjs-ts.vercel.app) 🚘🚘🚘
+### 2.1 Overview
 
-![app/page.tsx code example](https://raw.githubusercontent.com/AlexStack/nextjs-materia-mui-typescript-hook-form-scaffold-boilerplate-starter/main/public/images/app-page-tsx.png)
+The **Advanced 2-Step Verification Process** ensures the **Client's** identity is verified securely using their previously registered information. This process involves the **Service Provider** and **Computational Domain** working together to validate the **Client’s** identity through encrypted SSN comparison and a security question challenge.
 
-## License
+### 2.2 Steps
 
-- MIT
+1. **Initial Login:**
+
+   - The **Client** initiates the login process using their **passkey**. The **Service Provider** retrieves the **Client’s** encrypted SSN from its database.
+
+2. **Random Code and Question Generation:**
+
+   - The **Service Provider** generates a **random 10-digit code** and selects a security question that was provided by the **Client** during registration.
+
+3. **SSN Verification Request:**
+
+   - The **Service Provider** sends a request to the **Computational Domain** for SSN verification. The request includes:
+     - **Client's Phone/Email**
+     - **Encrypted SSN**
+     - **Selected Question**
+     - **Random 10-digit Code**
+
+4. **Temporary Storage and Verification Link:**
+
+   - The **Computational Domain** temporarily stores the received SSN, question, and 10-digit code. It then sends a verification link to the **Client’s** registered email or phone.
+
+5. **Client Verification:**
+
+   - The **Client** accesses the link, provides their homomorphic keys, and requests the **Computational Domain’s** public key.
+   - The **Client** generates a **Proxy Re-encryption Key** using the public key and sends the encrypted SSN and proxy re-encryption key to the **Computational Domain**.
+
+6. **SSN Comparison:**
+
+   - The **Computational Domain** retrieves the SSN received from the **Service Provider** and compares it homomorphically with the **Client’s** encrypted SSN.
+   - If the comparison fails, both the **Client** and **Service Provider** are notified, and the failure is logged in the **Blockchain**.
+   - If the comparison succeeds, the **Computational Domain** sends the 10-digit code and question to the **Client**.
+
+7. **Final Verification:**
+
+   - The **Client** answers the question, hashes the answer, concatenates it with the 10-digit code, and hashes the result.
+   - The final hash is sent to the **Computational Domain**.
+
+8. **Hash Comparison and Final Outcome:**
+   - The **Service Provider** retrieves the hashed answer and the 10-digit code, hashes them, and compares the result with the hash provided by the **Client**.
+   - If the comparison fails, the **Client** is notified, and the failure is logged in the **Blockchain**.
+   - If successful, the verification is logged in the **Blockchain**, and both the **Client** and **Service Provider** are notified of the successful identity verification.
+
+---
+
+### 3. Summary
+
+This **Advanced Identity Verification Process** employs cryptographic techniques like homomorphic encryption to ensure the security of sensitive data. The process is designed to safeguard against unauthorized access, providing a robust solution for identity verification that meets high standards of security and compliance.

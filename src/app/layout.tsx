@@ -3,7 +3,6 @@ import GlobalStyles from '@mui/material/GlobalStyles';
 import type { Metadata } from 'next';
 import * as React from 'react';
 
-import AuthProvider from '@/components/shared/AuthProvider';
 import { CryptoProvider } from '@/components/shared/CryptoContextProvder';
 import { SITE_CONFIG } from '@/constants';
 import { GLOBAL_STYLES } from '@/styles';
@@ -33,18 +32,6 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: SITE_CONFIG.title,
-    description: SITE_CONFIG.description,
-    images: [`${SITE_CONFIG.url}/images/og.jpg`],
-  },
-  authors: [
-    {
-      name: 'Alex',
-      url: 'https://hihb.com',
-    },
-  ],
 };
 
 export default function RootLayout({
@@ -56,11 +43,9 @@ export default function RootLayout({
     <html lang="en">
       <GlobalStyles styles={GLOBAL_STYLES} />
       <body>
-        <AuthProvider>
-          <CryptoProvider>
-            <Container sx={{ pl: 0, pr: 0 }}>{children}</Container>
-          </CryptoProvider>
-        </AuthProvider>
+        <CryptoProvider>
+          <Container sx={{ pl: 0, pr: 0 }}>{children}</Container>
+        </CryptoProvider>
       </body>
     </html>
   );

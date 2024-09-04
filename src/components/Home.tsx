@@ -1,10 +1,7 @@
 import { AutoAwesome } from '@mui/icons-material';
 import { Box, Typography } from '@mui/material';
 
-import ProfileInfo from '@/components/shared/ProfileInfo';
 import { SITE_CONFIG } from '@/constants';
-
-import GenerateKeys from './Home/GenerateKeys';
 
 export default function Home(): JSX.Element {
   return (
@@ -31,8 +28,7 @@ export default function Home(): JSX.Element {
             {SITE_CONFIG.description}
           </Typography>
         </Box>
-        <ProfileInfo />
-        <GenerateKeys />
+
       </section>
     </main>
   );

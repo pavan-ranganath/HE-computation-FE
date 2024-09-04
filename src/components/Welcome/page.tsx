@@ -8,7 +8,6 @@ import {
 } from '@mui/material';
 
 import MermaidChart from '@/components/shared/MermaidChart';
-import ProfileInfo from '@/components/shared/ProfileInfo';
 import { SITE_CONFIG } from '@/constants';
 
 const mermaidChart = `
@@ -91,7 +90,6 @@ export default function Home() {
             spacing={2}
             sx={{ mb: 4 }}
           >
-            <ProfileInfo />
           </Stack>
 
           <Box sx={{ mt: 3 }}>
