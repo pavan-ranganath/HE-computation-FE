@@ -3,6 +3,7 @@ import GlobalStyles from '@mui/material/GlobalStyles';
 import type { Metadata } from 'next';
 import * as React from 'react';
 
+import ClientSideWrapper from '@/components/shared/ClientSideWrapper';
 import { CryptoProvider } from '@/components/shared/CryptoContextProvder';
 import { SITE_CONFIG } from '@/constants';
 import { GLOBAL_STYLES } from '@/styles';
@@ -43,9 +44,11 @@ export default function RootLayout({
     <html lang="en">
       <GlobalStyles styles={GLOBAL_STYLES} />
       <body>
-        <CryptoProvider>
-          <Container sx={{ pl: 0, pr: 0 }}>{children}</Container>
-        </CryptoProvider>
+        <ClientSideWrapper defaultContextValue="">
+          <CryptoProvider>
+            <Container sx={{ pl: 0, pr: 0 }}>{children}</Container>
+          </CryptoProvider>
+        </ClientSideWrapper>
       </body>
     </html>
   );
