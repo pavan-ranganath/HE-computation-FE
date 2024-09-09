@@ -1,8 +1,9 @@
-import type { Buffer } from 'node:buffer';
-
+// eslint-disable-next-line unicorn/prefer-node-protocol
+import type { Buffer } from 'buffer';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
+import { ENCRYPTED_SSN_FILE_NAME } from '@/constants/openfhe';
 import OpenFHEModule from '@/lib/openfhe/openfhe';
 
 export function padArray(inputVal: number[], slots: number): number[] {
@@ -69,8 +70,8 @@ export class CKKSContext {
   protected batchSize = this.slots; // Default batch size
   protected sertype: SERTYPE = SERTYPE.BINARY;
   private openFHEModule: any;
-  private cc: any;
-  private keys: any;
+  public cc: any;
+  public keys: any;
 
   constructor(
     scTech?: ScalingTechnique,
@@ -164,6 +165,10 @@ export class CKKSContext {
 
   get CryptoContext() {
     return this.cc;
+  }
+
+  public set CryptoContext(cc: any) {
+    this.cc = cc;
   }
 
   get Keys() {
@@ -291,6 +296,16 @@ export class CKKSContext {
 
   createCipherTextBuffer(cipherText: any) {
     return this.openFHEModule.SerializeCiphertextToBuffer(cipherText, this.getSerializeType()[this.sertype]);
+  }
+
+  downloadCipherText(cipherText: any) {
+    const bufferedCipherText = this.createCipherTextBuffer(cipherText);
+    const blobCipherText = new Blob([bufferedCipherText], { type: 'application/octet-stream' });
+    saveAs(blobCipherText, ENCRYPTED_SSN_FILE_NAME);
+  }
+
+  deserializeCipherTextBuffer(cipherText: any) {
+    return this.openFHEModule.DeserializeCiphertextFromBuffer(cipherText, this.getSerializeType()[this.sertype]);
   }
 
   async downloadKeys(): Promise<void> {

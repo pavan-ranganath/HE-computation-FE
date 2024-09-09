@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-node-protocol */
 'use client';
 
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -6,15 +7,17 @@ import {
   Button,
   Typography,
 } from '@mui/material';
-import Link from 'next/link';
-import { useState } from 'react';
+import { Buffer } from 'buffer';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
 import FileDropzone from '@/components/FileDropzone';
+import { useCryptoContext } from '@/components/shared/CryptoContextProvder';
 import LoadingSpinner from '@/components/shared/Loading';
 import { SITE_CONFIG } from '@/constants';
 import { useSharedUtilContext } from '@/hooks/useSharedUtilContext';
+import { SchemeSwitchingDataDeserializer } from '@/lib/openfhe/crypto-ctxt-ser-des.service';
 
 export default function SignInComponent() {
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -23,7 +26,7 @@ export default function SignInComponent() {
   const [secretKeyError, setSecretKeyError] = useState<string | null>(null);
   const [ssnFileError, setSSNFileError] = useState<string | null>(null);
   const { setAlertBarProps } = useSharedUtilContext();
-
+  const { cryptoContext } = useCryptoContext();
   const signInForm = {
     secretKey: yup
       .mixed<File>()
@@ -38,13 +41,66 @@ export default function SignInComponent() {
         return value && value.size <= 5000000; // 5MB file size limit for SSN file
       }),
   };
+  const ccInstance = useMemo(() => {
+    if (cryptoContext?.OpenFHEModule) {
+      const instance = new SchemeSwitchingDataDeserializer(cryptoContext.OpenFHEModule);
 
-  const {
-    handleSubmit,
-  } = useForm({
+      instance.SERTYPE = instance.module?.SerType.BINARY;
+      return instance;
+    }
+    return null;
+  }, [cryptoContext]);
+  const validateSecretKeyAndAssociatedFiles = async (file: File) => {
+    if (!ccInstance || !cryptoContext) {
+      console.error('ccInstance is not initialized');
+      setAlertBarProps({ message: 'Initialization Error', severity: 'error' });
+      return;
+    }
+    setLoadingMessage('Validating Secret Key And Associated Files');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
+    ccInstance.deserialize(file).then(async () => {
+      setLoadingMessage('');
+      cryptoContext.cc = ccInstance.cryptoContext;
+      cryptoContext.keys = { publicKey: ccInstance.publicKey, secretKey: ccInstance.secretKey };
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
+      setAlertBarProps({ message: 'Secret Key And Associated Files are valid', severity: 'success' });
+    }).catch(async (error) => {
+      console.error(error);
+      setLoadingMessage('');
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
+      setSelectedSecretKey(null);
+      setAlertBarProps({ message: 'Secret Key And Associated Files are invalid', severity: 'error' });
+    }).finally(async () => {
+      setLoadingMessage('');
+    });
+  };
+  async function validateEncryptedSSN(selectedSSNFile: File) {
+    setLoadingMessage('Validating Encrypted SSN');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
+    try {
+      const arrayBuffer = await selectedSSNFile.arrayBuffer();
+      const cipherTextBuffer = Buffer.from(arrayBuffer);
+      const encryptedSSN = cryptoContext?.deserializeCipherTextBuffer(cipherTextBuffer);
+      setAlertBarProps({ message: 'Encrypted SSN is valid', severity: 'success' });
+      return encryptedSSN;
+    } catch (error) {
+      console.error(error);
+      setLoadingMessage('');
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
+      setSelectedSSNFile(null);
+      setAlertBarProps({ message: 'Encrypted SSN in invalid', severity: 'error' });
+    }
+  }
+
+  // useEffect(() => {
+  //   if (selectedSecretKey) {
+  //     validateSecretKeyAndAssociatedFiles(selectedSecretKey);
+  //   }
+  // }, [selectedSecretKey, validateSecretKeyAndAssociatedFiles]);
+
+  useForm({
     resolver: yupResolver(yup.object().shape(signInForm)),
   });
-
   const onSecretKeyDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
@@ -71,9 +127,9 @@ export default function SignInComponent() {
     }
 
     try {
-      setLoadingMessage('Uploading files...');
-      console.log('Secret Key:', selectedSecretKey);
-      console.log('Encrypted SSN File:', selectedSSNFile);
+      const encryptedSSN = await validateEncryptedSSN(selectedSSNFile);
+      await validateSecretKeyAndAssociatedFiles(selectedSecretKey);
+      console.log(encryptedSSN);
       // Perform file upload logic here
     } catch (err) {
       console.error(err);
@@ -81,8 +137,6 @@ export default function SignInComponent() {
         message: 'File upload failed!',
         severity: 'error',
       });
-    } finally {
-      setLoadingMessage('');
     }
   };
 
@@ -98,22 +152,22 @@ export default function SignInComponent() {
       {/* Secret Key Upload */}
       <Box sx={{ marginBottom: 2 }}>
         <Typography component="h1" variant="h6">
-          Upload Secret Key File
+          Load Secret Key And Associated Files
         </Typography>
         <FileDropzone
           onDrop={onSecretKeyDrop}
           fileType="secret key file"
-          acceptedFileTypes={{ 'application/octet-stream': ['.bin'] }}
+          acceptedFileTypes={{ 'application/octet-stream': ['.zip'] }}
           selectedFile={selectedSecretKey}
           errorMessage={secretKeyError}
-          placeholderText="Drag & drop the secret key file, or click to select"
+          placeholderText="Drag & drop the secret key and associated file, or click to select"
         />
       </Box>
 
       {/* SSN File Upload */}
       <Box sx={{ marginBottom: 2 }}>
         <Typography component="h1" variant="h6">
-          Upload Encrypted SSN File
+          Load Encrypted SSN File
         </Typography>
         <FileDropzone
           onDrop={onSSNFileDrop}
@@ -121,24 +175,14 @@ export default function SignInComponent() {
           acceptedFileTypes={{ 'application/octet-stream': ['.bin'] }}
           selectedFile={selectedSSNFile}
           errorMessage={ssnFileError}
-          placeholderText="Drag & drop the SSN file, or click to select"
+          placeholderText="Drag & drop the encrypted SSN file, or click to select"
         />
       </Box>
 
       {/* Submit Button */}
-      <Button variant="contained" color="primary" onClick={handleSubmit(onSubmit)} disabled={!selectedSecretKey || !selectedSSNFile}>
-        Upload Files
+      <Button variant="contained" color="primary" onClick={onSubmit} disabled={!selectedSecretKey || !selectedSSNFile}>
+        Verify
       </Button>
-
-      {/* Link to Register */}
-      <small>
-        Do not have an account?
-        {' '}
-        <Link style={{ textDecoration: 'underline' }} href="/register">
-          Register Here
-        </Link>
-      </small>
-      <br />
       {loadingMessage && <LoadingSpinner message={loadingMessage} />}
     </>
   );

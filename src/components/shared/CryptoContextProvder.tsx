@@ -22,7 +22,7 @@ export const CryptoProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setLoading(true);
       try {
         await cryptoContext.initializeOpenFHE();
-        cryptoContext.initializeCryptoContext();
+        // cryptoContext.initializeCryptoContext();
       } finally {
         setLoading(false);
       }
