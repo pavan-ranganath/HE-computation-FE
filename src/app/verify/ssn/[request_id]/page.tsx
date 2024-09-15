@@ -46,9 +46,46 @@ export default function SignInComponent({ params }: { params: { request_id: stri
   };
 
   const handleCloseDialog = () => {
-    setDialogOpen(false);
+    openConfirmDialog({
+      title: 'Confirm',
+      content: 'Are you sure you want to cancel verification?',
+      async onConfirm() {
+        await sendCancelRequest();
+        setDialogOpen(false);
+      },
+    });
   };
 
+  const onCancelReq = async () => {
+    try {
+      openConfirmDialog({
+        title: 'Confirm',
+        content: 'Are you sure you want to cancel verification?',
+        async onConfirm() {
+          await sendCancelRequest();
+        },
+      });
+    } catch (reqError) {
+      // Handle network or server errors
+      let errorMsg = 'An error occurred while cancelling verification. Please try again later.';
+
+      if (reqError instanceof AxiosError) {
+        // Extract error message from AxiosError
+        errorMsg = `${reqError.message}: ${(reqError.response?.data as { message?: string })?.message || 'No additional information available.'}`;
+      } else if (reqError instanceof Error) {
+        // Extract error message from general Error
+        errorMsg = reqError.message;
+      }
+
+      openConfirmDialog({
+        title: 'Error',
+        content: errorMsg,
+        hideCancelButton: true,
+      });
+
+      console.error('Cancel request failed:', reqError);
+    }
+  };
   const handleHashGenerated = async (hash: string) => {
     try {
       const secureCodeForm = new FormData();
@@ -60,7 +97,7 @@ export default function SignInComponent({ params }: { params: { request_id: stri
           content: 'Your Social Security Number (SSN) verification was successful. The Secure Code entered has been sent to initiate your sign-in request',
           hideCancelButton: true,
           onConfirm() {
-            handleCloseDialog();
+            setDialogOpen(false);
             setSelectedSSNFile(null);
             setSelectedSecretKey(null);
             router.push('/');
@@ -369,6 +406,15 @@ export default function SignInComponent({ params }: { params: { request_id: stri
       >
         Verify
       </Button>
+      <Button
+        sx={{ marginLeft: 1 }}
+        variant="contained"
+        color="error"
+        disabled={hasError}
+        onClick={onCancelReq}
+      >
+        Cancel
+      </Button>
 
       {/* Loading Spinner */}
       {loadingMessage && <LoadingSpinner message={loadingMessage} />}
@@ -381,4 +427,30 @@ export default function SignInComponent({ params }: { params: { request_id: stri
       />
     </>
   );
+
+  async function sendCancelRequest() {
+    try {
+      await axios.delete(COMPUTAION_SERVER_BASE_URI + COMPUTAION_API_VERIFY, { withCredentials: true });
+      router.push('/');
+    } catch (error) {
+      // Handle the error
+      let errorMsg = 'An error occurred while performing the delete operation. Please try again later.';
+
+      if (axios.isAxiosError(error)) {
+        // Handle Axios-specific errors
+        errorMsg = `${error.message}: ${(error.response?.data as { message?: string })?.message || 'For more details, please check the log.'}`;
+      } else if (error instanceof Error) {
+        // Handle other errors
+        errorMsg = error.message;
+      }
+
+      // Log the error for debugging purposes
+      console.error('Delete request failed:', error);
+      openConfirmDialog({
+        title: 'Error',
+        content: errorMsg,
+        hideCancelButton: true,
+      });
+    }
+  }
 }

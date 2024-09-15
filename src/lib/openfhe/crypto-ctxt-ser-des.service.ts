@@ -380,64 +380,64 @@ export class SchemeSwitchingDataDeserializer extends DataAndLocation {
       const secretKeyFileLoc = `${this.secretKeyFile}`;
       this.secretKey = await deserializeFile(secretKeyFileLoc, this.module.DeserializePrivateKeyFromBuffer);
 
-      // Deserialize eval mult key
-      const multKeyFileLoc = `${this.multKeyFile}`;
-      const multKeyFile = unzippedFiles.file(multKeyFileLoc);
-      if (multKeyFile) {
-        const multKeyBuffer = await multKeyFile.async('nodebuffer');
-        this.cryptoContext.DeserializeEvalMultKeyFromBuffer(multKeyBuffer, this.SERTYPE);
-      }
+      // // Deserialize eval mult key
+      // const multKeyFileLoc = `${this.multKeyFile}`;
+      // const multKeyFile = unzippedFiles.file(multKeyFileLoc);
+      // if (multKeyFile) {
+      //   const multKeyBuffer = await multKeyFile.async('nodebuffer');
+      //   this.cryptoContext.DeserializeEvalMultKeyFromBuffer(multKeyBuffer, this.SERTYPE);
+      // }
 
-      // Deserialize automorphism key (rotation key)
-      const rotKeyFileLoc = `${this.rotKeyFile}`;
-      const rotKeyFile = unzippedFiles.file(rotKeyFileLoc);
-      if (rotKeyFile) {
-        const rotKeyBuffer = await rotKeyFile.async('nodebuffer');
-        this.cryptoContext.DeserializeEvalAutomorphismKeyFromBuffer(rotKeyBuffer, this.SERTYPE);
-      }
+      // // Deserialize automorphism key (rotation key)
+      // const rotKeyFileLoc = `${this.rotKeyFile}`;
+      // const rotKeyFile = unzippedFiles.file(rotKeyFileLoc);
+      // if (rotKeyFile) {
+      //   const rotKeyBuffer = await rotKeyFile.async('nodebuffer');
+      //   this.cryptoContext.DeserializeEvalAutomorphismKeyFromBuffer(rotKeyBuffer, this.SERTYPE);
+      // }
 
-      // Deserialize FHEW to CKKS switching key
-      const FHEWtoCKKSSwitchKeyLoc = `${this.FHEWtoCKKSSwitchKeyFile}`;
-      this.FHEWtoCKKSSwitchKey = await deserializeFile(FHEWtoCKKSSwitchKeyLoc, this.module.DeserializeSwkFC);
-      this.cryptoContext.SetSwkFC(this.FHEWtoCKKSSwitchKey);
+      // // Deserialize FHEW to CKKS switching key
+      // const FHEWtoCKKSSwitchKeyLoc = `${this.FHEWtoCKKSSwitchKeyFile}`;
+      // this.FHEWtoCKKSSwitchKey = await deserializeFile(FHEWtoCKKSSwitchKeyLoc, this.module.DeserializeSwkFC);
+      // this.cryptoContext.SetSwkFC(this.FHEWtoCKKSSwitchKey);
 
-      // Deserialize binFHECryptoContext
-      const binFHECryptoContextFileLoc = `${this.binFHECryptoContextFile}`;
-      this.binFHECryptoContext = await deserializeFile(binFHECryptoContextFileLoc, this.module.DeserializeBinFHECryptoContextFromBuffer);
+      // // Deserialize binFHECryptoContext
+      // const binFHECryptoContextFileLoc = `${this.binFHECryptoContextFile}`;
+      // this.binFHECryptoContext = await deserializeFile(binFHECryptoContextFileLoc, this.module.DeserializeBinFHECryptoContextFromBuffer);
 
-      // Deserialize boot refresh key
-      const binFHEBootRefreshKeyFileLoc = `${this.binFHEBootRefreshKeyFile}`;
-      const BTKey = new this.module.RingGSWBTKey();
-      BTKey.BSkey = await deserializeFile(binFHEBootRefreshKeyFileLoc, this.module.DeserializeBinFHERefreshKeyFromBuffer);
+      // // Deserialize boot refresh key
+      // const binFHEBootRefreshKeyFileLoc = `${this.binFHEBootRefreshKeyFile}`;
+      // const BTKey = new this.module.RingGSWBTKey();
+      // BTKey.BSkey = await deserializeFile(binFHEBootRefreshKeyFileLoc, this.module.DeserializeBinFHERefreshKeyFromBuffer);
 
-      // Deserialize boot rotation key
-      const binFHEBootRotKeyFileLoc = `${this.binFHEBootRotKeyFile}`;
-      BTKey.KSkey = await deserializeFile(binFHEBootRotKeyFileLoc, this.module.DeserializeBinFHESwitchingKeyFromBuffer);
+      // // Deserialize boot rotation key
+      // const binFHEBootRotKeyFileLoc = `${this.binFHEBootRotKeyFile}`;
+      // BTKey.KSkey = await deserializeFile(binFHEBootRotKeyFileLoc, this.module.DeserializeBinFHESwitchingKeyFromBuffer);
 
-      this.binFHECryptoContext.BTKeyLoad(BTKey);
+      // this.binFHECryptoContext.BTKeyLoad(BTKey);
 
-      // Deserialize key indices and associated keys
-      const keyIndexFileLoc = `${this.keyIndexFile}`;
-      let indices = await deserializeFile(keyIndexFileLoc, this.module.DeserializeSeedSeqVector);
-      indices = this.copyVecToJs(indices); // Assuming a helper function to copy to JS array
-      if (indices.length === 0) {
-        throw new Error(`Error deserializing from ${keyIndexFileLoc}. No indices found.`);
-      }
+      // // Deserialize key indices and associated keys
+      // const keyIndexFileLoc = `${this.keyIndexFile}`;
+      // let indices = await deserializeFile(keyIndexFileLoc, this.module.DeserializeSeedSeqVector);
+      // indices = this.copyVecToJs(indices); // Assuming a helper function to copy to JS array
+      // if (indices.length === 0) {
+      //   throw new Error(`Error deserializing from ${keyIndexFileLoc}. No indices found.`);
+      // }
 
-      // Deserialize refresh and switching keys for each index
-      for (const index of indices) {
-        const theKey = new this.module.RingGSWBTKey();
+      // // Deserialize refresh and switching keys for each index
+      // for (const index of indices) {
+      //   const theKey = new this.module.RingGSWBTKey();
 
-        const bsKeyFileName = this.createMapFileNameDeserialize(index, this.baseRefreshKeyFile);
-        theKey.BSkey = await deserializeFile(bsKeyFileName, this.module.DeserializeBinFHERefreshKeyFromBuffer);
+      //   const bsKeyFileName = this.createMapFileNameDeserialize(index, this.baseRefreshKeyFile);
+      //   theKey.BSkey = await deserializeFile(bsKeyFileName, this.module.DeserializeBinFHERefreshKeyFromBuffer);
 
-        const ksKeyFileName = this.createMapFileNameDeserialize(index, this.baseSwitchingKeyFile);
-        theKey.KSkey = await deserializeFile(ksKeyFileName, this.module.DeserializeBinFHESwitchingKeyFromBuffer);
+      //   const ksKeyFileName = this.createMapFileNameDeserialize(index, this.baseSwitchingKeyFile);
+      //   theKey.KSkey = await deserializeFile(ksKeyFileName, this.module.DeserializeBinFHESwitchingKeyFromBuffer);
 
-        this.binFHECryptoContext.BTKeyMapLoadSingleElement(index, theKey);
-      }
+      //   this.binFHECryptoContext.BTKeyMapLoadSingleElement(index, theKey);
+      // }
 
-      this.cryptoContext.SetBinCCForSchemeSwitch(this.binFHECryptoContext);
+      // this.cryptoContext.SetBinCCForSchemeSwitch(this.binFHECryptoContext);
     } catch (error) {
       const msg
       = typeof error === 'number' ? this.module.getExceptionMessage(error) : error;
