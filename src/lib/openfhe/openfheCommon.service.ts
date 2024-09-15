@@ -49,13 +49,7 @@ enum SERTYPE {
   BINARY = 'BINARY',
   JSON = 'JSON',
 }
-function customLocateFile(path: string, scriptDirectory: any) {
-  if (!scriptDirectory.startsWith('http')) {
-    return `public/${path}`;
-  }
-  return `/${path}`;
-  // Your custom logic to locate the file
-}
+
 export class CKKSContext {
   // Protected properties to allow access in derived classes
   protected scTech: ScalingTechnique = ScalingTechnique.FIXEDAUTO; // Default scaling technique
@@ -127,7 +121,7 @@ export class CKKSContext {
   }
 
   async initializeOpenFHE() {
-    this.openFHEModule = await OpenFHEModule({ locateFile: customLocateFile });
+    this.openFHEModule = await OpenFHEModule();
   }
 
   private getScalingTechniques() {
@@ -218,6 +212,7 @@ export class CKKSContext {
       this.cc.Enable(this.openFHEModule.PKESchemeFeature.LEVELEDSHE);
       this.cc.Enable(this.openFHEModule.PKESchemeFeature.ADVANCEDSHE);
       this.cc.Enable(this.openFHEModule.PKESchemeFeature.SCHEMESWITCH);
+      this.cc.Enable(this.openFHEModule.PKESchemeFeature.PRE);
 
       console.log(
         `CKKS scheme is using ring dimension ${this.cc.GetRingDimension()},\n and number of slots ${
@@ -294,7 +289,7 @@ export class CKKSContext {
     return ciphertext;
   }
 
-  createCipherTextBuffer(cipherText: any) {
+  createCipherTextBuffer(cipherText: any): Uint8Array {
     return this.openFHEModule.SerializeCiphertextToBuffer(cipherText, this.getSerializeType()[this.sertype]);
   }
 
@@ -306,6 +301,45 @@ export class CKKSContext {
 
   deserializeCipherTextBuffer(cipherText: any) {
     return this.openFHEModule.DeserializeCiphertextFromBuffer(cipherText, this.getSerializeType()[this.sertype]);
+  }
+
+  deserializePublicKeyBuffer(pubKey: any) {
+    return this.openFHEModule.DeserializePublicKeyFromBuffer(pubKey, this.getSerializeType()[this.sertype]);
+  }
+
+  async serializeEvalKeyToBuffer(evalKey: any): Promise<Uint8Array> {
+    const key = evalKey;
+    await new Promise(resolve => setTimeout(resolve, 300)); // 100 ms delay
+
+    return this.openFHEModule.SerializeEvalKeyToBuffer(key, this.getSerializeType()[this.sertype]);
+  }
+
+  deserializeEvalKeyFromBuffer(evalKeyBuffery: any) {
+    return this.openFHEModule.DerializeEvalKeyToBuffer(evalKeyBuffery, this.getSerializeType()[this.sertype]);
+  }
+
+  async reEncryptData(pubKey: any, ciphertext: any) {
+    if (!this.cc || !this.keys) {
+      throw new Error('CKKSContext is not initialized');
+    }
+    const privKey = this.keys.secretKey;
+    await new Promise(resolve => setTimeout(resolve, 300)); // 100 ms delay
+
+    // const computeCC = pubKey.GetCryptoContext();
+    const reencryptionKey = this.cc.ReKeyGenPrivPub(privKey, pubKey);
+    const reEncryptedCiphertext = this.cc.ReEncrypt(reencryptionKey, ciphertext);
+    return reEncryptedCiphertext;
+  }
+
+  async genearateProxyEncKey(pubKey: any) {
+    if (!this.cc || !this.keys) {
+      throw new Error('CKKSContext is not initialized');
+    }
+    const privKey = this.keys.secretKey;
+    await new Promise(resolve => setTimeout(resolve, 300)); // 100 ms delay
+
+    // const computeCC = pubKey.GetCryptoContext();
+    return this.cc.ReKeyGenPrivPub(privKey, pubKey);
   }
 
   async downloadKeys(): Promise<void> {

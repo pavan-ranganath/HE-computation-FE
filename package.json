@@ -3,12 +3,12 @@
   "version": "2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "fast": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "eslint src --fix",
+    "lint:fix": "eslint src --fix --ignore-pattern '**/*.js'",
     "lint:strict": "eslint --max-warnings=2 src",
     "typecheck": "tsc --noEmit --incremental false",
     "test:watch": "jest --watch",
@@ -94,7 +94,7 @@
   },
   "lint-staged": {
     "**/*.{jsx,ts,tsx}": [
-      "eslint src --max-warnings=100"
+      "eslint src --max-warnings=100 --ignore-pattern '**/*.js'"
     ],
     "**/*.{json,css,scss,md,webmanifest}": [
       "prettier -w"

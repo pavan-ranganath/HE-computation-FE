@@ -12,6 +12,7 @@ type FileDropzoneProps = {
   selectedFile: File | null;
   errorMessage: string | null;
   placeholderText: string;
+  disabled?: boolean; // Add the disabled prop
 };
 
 const FileDropzone: FC<FileDropzoneProps> = ({
@@ -21,6 +22,7 @@ const FileDropzone: FC<FileDropzoneProps> = ({
   selectedFile,
   errorMessage,
   placeholderText,
+  disabled = false, // Set default value to false
 }) => {
   const [isDragActive, setIsDragActive] = useState(false);
   const { openConfirmDialog } = useSharedUtilContext();
@@ -29,14 +31,16 @@ const FileDropzone: FC<FileDropzoneProps> = ({
     onDrop,
     multiple: false,
     accept: acceptedFileTypes,
-    onDragEnter: () => setIsDragActive(true),
-    onDragLeave: () => setIsDragActive(false),
-    onDropAccepted: () => setIsDragActive(false),
+    onDragEnter: () => !disabled && setIsDragActive(true), // Prevent drag actions when disabled
+    onDragLeave: () => !disabled && setIsDragActive(false),
+    onDropAccepted: () => !disabled && setIsDragActive(false),
     onDropRejected: () => {
       setIsDragActive(false);
-      // Set error message if file type is incorrect
-      openConfirmDialog({ title: 'Error', content: 'Unsupported file format', hideCancelButton: true });
+      if (!disabled) {
+        openConfirmDialog({ title: 'Error', content: 'Unsupported file format', hideCancelButton: true });
+      }
     },
+    disabled, // Disable dropzone functionality
   });
 
   return (
@@ -46,11 +50,13 @@ const FileDropzone: FC<FileDropzoneProps> = ({
         border: '2px dashed #ccc',
         padding: 2,
         textAlign: 'center',
-        backgroundColor: isDragActive ? '#e0f7fa' : '#fafafa',
+        backgroundColor: disabled ? '#f5f5f5' : isDragActive ? '#e0f7fa' : '#fafafa', // Dim background when disabled
+        cursor: disabled ? 'not-allowed' : 'pointer', // Show not-allowed cursor when disabled
+        opacity: disabled ? 0.6 : 1, // Reduce opacity when disabled
         marginBottom: 2,
       }}
     >
-      <input {...getInputProps()} />
+      <input {...getInputProps()} disabled={disabled} />
       {isDragActive
         ? (
             <Typography>

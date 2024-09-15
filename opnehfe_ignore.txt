@@ -14,7 +14,7 @@
 /* eslint-disable style/arrow-spacing */
 /* eslint-disable style/semi */
 /* eslint-disable style/keyword-spacing */
-/* eslint-disable style/indent-binary-ops */
+
 /* eslint-disable regexp/no-useless-non-capturing-group */
 /* eslint-disable unicorn/prefer-type-error */
 /* eslint-disable style/max-statements-per-line */
@@ -23,17 +23,17 @@
 /* eslint-disable yoda */
 /* eslint-disable regexp/no-useless-character-class */
 /* eslint-disable regexp/no-useless-escape */
-/* eslint-disable style/multiline-ternary */
+
 /* eslint-disable style/quote-props */
-/* eslint-disable style/lines-between-class-members */
+
 /* eslint-disable style/no-mixed-operators */
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable object-shorthand */
-/* eslint-disable style/array-bracket-spacing */
-/* eslint-disable style/spaced-comment */
+
+
 /* eslint-disable style/new-parens */
 /* eslint-disable unicorn/prefer-node-protocol */
-/* eslint-disable style/comma-dangle */
+
 /* eslint-disable dot-notation */
 /* eslint-disable prefer-template */
 /* eslint-disable style/arrow-parens */
@@ -41,7 +41,7 @@
 /* eslint-disable style/quotes */
 /* eslint-disable style/indent */
 /* eslint-disable curly */
-/* eslint-disable style/operator-linebreak */
+
 /* eslint-disable new-cap */
 /* eslint-disable no-alert */
 /* eslint-disable unicorn/prefer-number-properties */

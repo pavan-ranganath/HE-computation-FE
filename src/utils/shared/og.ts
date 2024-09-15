@@ -1,3 +1,5 @@
+// eslint-disable-next-line unicorn/prefer-node-protocol
+import * as crypto from 'crypto';
 import { webcrypto } from 'iso-base/crypto';
 import { utf8 } from 'iso-base/utf8';
 import { concat, u8 } from 'iso-base/utils';
@@ -133,4 +135,13 @@ export async function decrypt(data: Uint8Array, encryptionKey: CryptoKey) {
     encrypted,
   );
   return u8(decrypted);
+}
+export function computeHash(data: Uint8Array): string {
+  return crypto.createHash('sha256').update(data).digest('hex');
+}
+
+export async function sha256(message: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+  return computeHash(data);
 }
