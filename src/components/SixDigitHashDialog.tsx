@@ -43,6 +43,7 @@ const SixDigitHashDialog: React.FC<SixDigitHashDialogProps> = ({ open, onClose, 
           <TextField
             label="6-Digit Input"
             value={inputValue}
+            type="password"
             onChange={handleInputChange}
             slotProps={{ htmlInput: { minLength: 6, maxLength: 6 } }}
             helperText="Please enter a 6-digit number"

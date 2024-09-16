@@ -173,7 +173,7 @@ export default function SignInComponent({ params }: { params: { request_id: stri
         throw new Error('Initialization Error');
       }
 
-      setLoadingMessage('Validating Secret Key And Associated Files');
+      setLoadingMessage('Loading Secret Key And Associated Files');
       await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
 
       // Deserialize the file and assign to the cryptoContext
@@ -201,7 +201,7 @@ export default function SignInComponent({ params }: { params: { request_id: stri
     }
   };
   async function validateEncryptedSSN(selectedSSNFile: File) {
-    setLoadingMessage('Validating Encrypted SSN');
+    setLoadingMessage('Loading Encrypted SSN');
     await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure the text update is rendered
     try {
       const arrayBuffer = await selectedSSNFile.arrayBuffer();
@@ -238,7 +238,7 @@ export default function SignInComponent({ params }: { params: { request_id: stri
         // If the server responds with a failure
         openConfirmDialog({
           title: 'Error',
-          content: 'Verification Failed. Please try again.',
+          content: response.data.message ? response.data.message : 'Verification Failed. Please try again.',
           hideCancelButton: true,
         });
         setSelectedSSNFile(null);
