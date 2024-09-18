@@ -1,6 +1,6 @@
 {
-  "name": "advanced_2fa_service_provider_computation_domain",
-  "version": "2.0",
+  "name": "ad2a_comutation_client",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001",
